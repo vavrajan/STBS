@@ -11,7 +11,7 @@ import re
 import scipy.sparse as sparse
 import tensorflow as tf
 import tensorflow_probability as tfp
-from STBSM.code.plotting_functions import hist_word_counts
+from STBS.code.plotting_functions import hist_word_counts
 
 
 

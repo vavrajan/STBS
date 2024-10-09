@@ -14,22 +14,22 @@ from absl import flags
 
 ## Import local modules
 # Necessary to import local modules from specific directory
-# todo Can the appropriate directory containing STBSM be added to sys list of paths by some other means?
+# todo Can the appropriate directory containing STBS be added to sys list of paths by some other means?
 import sys
 # first directory here is the one where analysis_cluster is located
-# this is ./STBSM/analysis/analysis_cluster
-# So add ./ to the list so that it can find ./STBSM.code....
+# this is ./STBS/analysis/analysis_cluster
+# So add ./ to the list so that it can find ./STBS.code....
 sys.path.append(os.path.dirname(os.path.dirname(sys.path[0])))
 
-from STBSM.code.check_prior import get_and_check_prior_choice, get_and_check_prior_hyperparameter
-from STBSM.code.input_pipeline import build_input_pipeline
-from STBSM.code.create_X import create_X
-from STBSM.code.stbsm import STBSM
-from STBSM.code.train_step import train_step
-from STBSM.code.information_criteria import get_variational_information_criteria
-from STBSM.code.utils import print_topics, print_ideal_points, log_static_features
-from STBSM.code.plotting_functions import create_all_general_descriptive_figures, create_all_figures_specific_to_data
-from STBSM.code.influential_speeches import find_most_influential_speeches
+from STBS.code.check_prior import get_and_check_prior_choice, get_and_check_prior_hyperparameter
+from STBS.code.input_pipeline import build_input_pipeline
+from STBS.code.create_X import create_X
+from STBS.code.STBS import STBS
+from STBS.code.train_step import train_step
+from STBS.code.information_criteria import get_variational_information_criteria
+from STBS.code.utils import print_topics, print_ideal_points, log_static_features
+from STBS.code.plotting_functions import create_all_general_descriptive_figures, create_all_figures_specific_to_data
+from STBS.code.influential_speeches import find_most_influential_speeches
 
 ## FLAGS
 flags.DEFINE_string("data_name", default="hein-daily", help="Data source being used.")
@@ -215,13 +215,13 @@ def main(argv):
 
     ### Setting up directories
     project_dir = os.getcwd()
-    source_dir = project_dir + '/data/' + FLAGS.data_name + '/'
-    fit_dir = os.path.join(source_dir, "pf-fits")
-    data_dir = source_dir + 'clean/'
-    save_dir = source_dir + 'fits/' + FLAGS.checkpoint_name + '/'
-    fig_dir = source_dir + 'figs/' + FLAGS.checkpoint_name + '/'
-    txt_dir = source_dir + 'txts/' + FLAGS.checkpoint_name + '/'
-    checkpoint_dir = os.path.join(save_dir, "checkpoints")
+    source_dir = os.path.join(project_dir, 'data', FLAGS.data_name)
+    fit_dir = os.path.join(source_dir, 'pf-fits')
+    data_dir = os.path.join(source_dir, 'clean')
+    save_dir = os.path.join(source_dir, 'fits', FLAGS.checkpoint_name)
+    fig_dir = os.path.join(source_dir, 'figs', FLAGS.checkpoint_name)
+    txt_dir = os.path.join(source_dir, 'txts', FLAGS.checkpoint_name)
+    checkpoint_dir = os.path.join(save_dir, 'checkpoints')
 
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
@@ -232,7 +232,7 @@ def main(argv):
     if not os.path.exists(txt_dir):
         os.mkdir(txt_dir)
 
-    if os.path.exists(fig_dir + 'orig_hist_counts.png'):
+    if os.path.exists(os.path.join(fig_dir, 'orig_hist_counts.png')):
         # If the descriptive histograms of the document-term matrix exist
         # --> do not plot them again, because it takes some time.
         use_fig_dir = None
@@ -241,7 +241,7 @@ def main(argv):
         # when loading the data within 'build_input_pipeline()'.
         use_fig_dir = fig_dir
 
-    print("STBSM analysis of " + FLAGS.data_name + "_" + FLAGS.addendum + " dataset.")
+    print("STBS analysis of " + FLAGS.data_name + "_" + FLAGS.addendum + " dataset.")
 
     ### Import clean datasets
     (dataset, permutation, all_author_indices, vocabulary, author_map, author_info) = build_input_pipeline(
@@ -270,14 +270,11 @@ def main(argv):
     ### Requires to run 'poisson_factorization.py' first to save document and topic shapes and rates.
     if FLAGS.pre_initialize_parameters:
         # Run 'poisson_factorization.py' first to store the initial values.
-        fitted_document_shape = np.load(
-            os.path.join(fit_dir, "document_shape_K" + str(FLAGS.num_topics) + str(FLAGS.addendum) + ".npy")).astype(np.float32)
-        fitted_document_rate = np.load(
-            os.path.join(fit_dir, "document_rate_K" + str(FLAGS.num_topics) + str(FLAGS.addendum) + ".npy")).astype(np.float32)
-        fitted_topic_shape = np.load(os.path.join(fit_dir, "topic_shape_K" + str(FLAGS.num_topics) + str(FLAGS.addendum) + ".npy")).astype(
-            np.float32)
-        fitted_topic_rate = np.load(os.path.join(fit_dir, "topic_rate_K" + str(FLAGS.num_topics) + str(FLAGS.addendum) + ".npy")).astype(
-            np.float32)
+        add = str(FLAGS.num_topics) + str(FLAGS.addendum)
+        fitted_document_shape = np.load(os.path.join(fit_dir, "document_shape_K" + add + ".npy")).astype(np.float32)
+        fitted_document_rate = np.load(os.path.join(fit_dir, "document_rate_K" + add + ".npy")).astype(np.float32)
+        fitted_topic_shape = np.load(os.path.join(fit_dir, "topic_shape_K" + add + ".npy")).astype(np.float32)
+        fitted_topic_rate = np.load(os.path.join(fit_dir, "topic_rate_K" + add + ".npy")).astype(np.float32)
     else:
         fitted_document_shape = None
         fitted_document_rate = None
@@ -286,26 +283,26 @@ def main(argv):
 
     ### Model initialization
     optim = tf.optimizers.Adam(learning_rate=FLAGS.learning_rate)
-    model = STBSM(num_documents,
-                  FLAGS.num_topics,
-                  num_words,
-                  num_authors,
-                  FLAGS.num_samples,
-                  X,
-                  all_author_indices,
-                  initial_ideal_location=initial_ideal_location,
-                  fitted_document_shape=fitted_document_shape,
-                  fitted_document_rate=fitted_document_rate,
-                  fitted_objective_topic_shape=fitted_topic_shape,
-                  fitted_objective_topic_rate=fitted_topic_rate,
-                  prior_hyperparameter=prior_hyperparameter,
-                  prior_choice=prior_choice,
-                  batch_size=FLAGS.batch_size,
-                  RobMon_exponent=FLAGS.RobMon_exponent,
-                  exact_entropy=FLAGS.exact_entropy,
-                  geom_approx=FLAGS.geom_approx,
-                  aux_prob_sparse=FLAGS.aux_prob_sparse,
-                  iota_coef_jointly=FLAGS.iota_coef_jointly)
+    model = STBS(num_documents,
+                 FLAGS.num_topics,
+                 num_words,
+                 num_authors,
+                 FLAGS.num_samples,
+                 X,
+                 all_author_indices,
+                 initial_ideal_location=initial_ideal_location,
+                 fitted_document_shape=fitted_document_shape,
+                 fitted_document_rate=fitted_document_rate,
+                 fitted_objective_topic_shape=fitted_topic_shape,
+                 fitted_objective_topic_rate=fitted_topic_rate,
+                 prior_hyperparameter=prior_hyperparameter,
+                 prior_choice=prior_choice,
+                 batch_size=FLAGS.batch_size,
+                 RobMon_exponent=FLAGS.RobMon_exponent,
+                 exact_entropy=FLAGS.exact_entropy,
+                 geom_approx=FLAGS.geom_approx,
+                 aux_prob_sparse=FLAGS.aux_prob_sparse,
+                 iota_coef_jointly=FLAGS.iota_coef_jointly)
 
     ### Model training preparation
     # Add start epoch so checkpoint state is saved.
@@ -432,7 +429,7 @@ def main(argv):
             # to the logic at the beginning of this function. Since that may be
             # too much hassle, we also save the ideal point model parameters to a
             # separate file. You can save additional model parameters if you'd like.
-            param_save_dir = os.path.join(save_dir, "params/")
+            param_save_dir = os.path.join(save_dir, "params")
             if not os.path.exists(param_save_dir):
                 os.makedirs(param_save_dir)
             np.save(os.path.join(param_save_dir, "all_author_indices"), model.all_author_indices.numpy())

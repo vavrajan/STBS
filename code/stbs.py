@@ -7,7 +7,7 @@ import scipy.sparse as sparse
 import warnings
 
 # Import local modules
-from STBSM.code.var_and_prior_family import VariationalFamily, PriorFamily
+from STBS.code.var_and_prior_family import VariationalFamily, PriorFamily
 
 prior_hyperparameter = {
     "theta": {"shape": 0.5, "rate": 0.5},
@@ -47,8 +47,8 @@ prior_choice = {
 
 # todo Unify and check warnings. Print a warning by Warning without "raise"? Or warnings.warn?
 
-class STBSM(tf.keras.Model):
-    """Tensorflow implementation of the Structural Text-Based Scaling Model (STBSM)."""
+class STBS(tf.keras.Model):
+    """Tensorflow implementation of the Structural Text-Based Scaling Model (STBS)."""
 
     def __init__(self,
                  num_documents: int,
@@ -71,7 +71,7 @@ class STBSM(tf.keras.Model):
                  geom_approx: bool = True,
                  aux_prob_sparse: bool = True,
                  iota_coef_jointly: bool = False):
-        """Initialize STBSM.
+        """Initialize STBS.
 
         Args:
             num_documents: The number of documents in the corpus.
@@ -102,7 +102,7 @@ class STBSM(tf.keras.Model):
             iota_coef_jointly: Should we suppose joint variational family over iota coefficients (True) instead of
                 mean-field variational family which imposes independence between coefficients (False)?
         """
-        super(STBSM, self).__init__()
+        super(STBS, self).__init__()
         self.num_documents = num_documents
         self.num_topics = num_topics
         self.num_words = num_words
@@ -748,7 +748,7 @@ class STBSM(tf.keras.Model):
 
     def get_rates(self, samples, document_indices, author_indices):
         """
-        Given samples of theta, beta, eta, ideal and verbosities computes the rates for Poisson counts in STBSM.
+        Given samples of theta, beta, eta, ideal and verbosities computes the rates for Poisson counts in STBS.
 
         Args:
             samples: A dictionary of samples including theta, beta, eta, ideal and verbosities.

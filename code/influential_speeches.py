@@ -13,10 +13,10 @@ def find_most_influential_speeches_hein_daily(model, data_name, data_dir, source
     This (and all following) is done for each topic separately.
     Then, for these speeches compute the log-likelihood ratio test statistic for comparing:
         null: ideological positions for these documents are 0,
-        true: ideological positions are the ones estimated by STBSM.
+        true: ideological positions are the ones estimated by STBS.
 
     Args:
-        model: A STBSM.
+        model: A STBS.
         data_name: A string containing the name of the data set.
         data_dir: Directory with clean data. (source_dir + clean/).
         source_dir: Directory where the original data (orig/) lies.

@@ -1,4 +1,5 @@
 # Import global packages
+import os
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -285,7 +286,7 @@ def plot_words_beta_vs_eta(model, fig_dir, k, vocabulary, size = (15,15)):
     y = model.get_gamma_distribution_Eqmean_subset(model.beta_varfam, k, log=True).numpy()
 
     plot_labels(x, y, vocabulary,
-                path=fig_dir+'words_beta_vs_eta_topic_'+str(k)+'.png',
+                path=os.path.join(fig_dir, 'words_beta_vs_eta_topic_'+str(k)+'.png'),
                 title='Topic '+str(k)+': log beta means vs eta',
                 colors=np.full(x.shape, 'black'),
                 size=size,
@@ -297,10 +298,10 @@ def plot_location_jittered(model, x, fig_dir, k, labels, author_category, size =
         raise ValueError("When plotting verbosity vs ideal location only topic k=0 is allowed "
                          "if positions are not topic-specific.")
     if model.prior_choice['ideal_dim'] == "ak":
-        path = fig_dir + 'ideal_' + str(k) + '_' + author_category.name + '.png'
+        path = os.path.join(fig_dir, 'ideal_' + str(k) + '_' + author_category.name + '.png')
         title = 'Topic ' + str(k) + ': ideological position'
     else:
-        path = fig_dir + 'ideal_' + author_category.name + '.png'
+        path = os.path.join(fig_dir, 'ideal_' + author_category.name + '.png')
         title = 'Ideological position'
 
     # Location
@@ -316,10 +317,10 @@ def plot_location_jittered(model, x, fig_dir, k, labels, author_category, size =
 
 def plot_coef_jittered(model, x, fig_dir, k, labels, author_category, size = (15,15)):
     if model.prior_choice['iota_dim'] == "kl":
-        path = fig_dir + 'iota_' + str(k) + '_' + author_category + '.png'
+        path = os.path.join(fig_dir, 'iota_' + str(k) + '_' + author_category + '.png')
         title = 'Topic ' + str(k) + ': iota coefficient'
     else:
-        path = fig_dir + 'iota_' + author_category + '.png'
+        path = os.path.join(fig_dir, 'iota_' + author_category + '.png')
         title = 'iota coefficient'
 
     # Location
@@ -380,10 +381,10 @@ def plot_verbosity_vs_location(model, fig_dir, k, all_author_indices, author_map
         raise ValueError("The prior choice for theta: '"+model.prior_choice['theta']+"', is not recognized.")
 
     if model.prior_choice['ideal_dim'] == "ak":
-        path = fig_dir + 'authors_verbosity_vs_ideal_' + str(k) + '_' + author_category.name + '.png'
+        path = os.path.join(fig_dir, 'authors_verbosity_vs_ideal_' + str(k) + '_' + author_category.name + '.png')
         title = 'Topic ' + str(k) + ': verbosity vs ideological position'
     else:
-        path = fig_dir + 'authors_verbosity_vs_ideal_' + author_category.name + '.png'
+        path = os.path.join(fig_dir, 'authors_verbosity_vs_ideal_' + author_category.name + '.png')
         title = 'Verbosity vs ideological position'
 
     if max(np.vectorize(len)(author_category)) > 2:
@@ -469,7 +470,7 @@ def plot_beta_eta_vs_ideal_top_N_words(model, fig_dir, N, k, vocabulary, size = 
         plt.text(xmean[1].numpy(), ymean[wi, 1].numpy(), vocabulary[wi], color=color)
     plt.tight_layout()
     # plt.show()
-    plt.savefig(fig_dir+'top'+str(N)+'words_vs_ideal_topic_'+str(k)+'.png')
+    plt.savefig(os.path.join(fig_dir, 'top'+str(N)+'words_vs_ideal_topic_'+str(k)+'.png'))
     plt.close()
 
 def barplot_ordered_labels_top(x, label, path, size=(15,15)):
@@ -733,7 +734,7 @@ def plot_ideal_points_thin(model, fig_dir, k, author_category, xlim=(-1.2, 1.2),
     #plt.subplots_adjust(left=0.1, right=0.1, top=0.1, bottom=0.1)
     plt.gcf().set_size_inches(size)
     #plt.show()
-    plt.savefig(fig_dir + 'ideal_points_' + str(k) + '.png')
+    plt.savefig(os.path.join(fig_dir, 'ideal_points_' + str(k) + '.png'))
     plt.close()
 
 def plot_ideal_points_as_distribution(model, fig_dir, k, author_category, xlim=(-2.5, 2.5), size=(10, 5)):
@@ -810,7 +811,7 @@ def plot_ideal_points_as_distribution(model, fig_dir, k, author_category, xlim=(
     plt.tight_layout()
     plt.gcf().set_size_inches(size)
     # plt.show()
-    plt.savefig(fig_dir + 'ideal_points_as_distribution_vs_' + author_category.name + '_' + str(k) + '.png')
+    plt.savefig(os.path.join(fig_dir, 'ideal_points_as_distribution_vs_' + author_category.name + '_' + str(k) + '.png'))
     plt.close()
 
 def plot_heatmap_coefficients(table, title, fig_path, xtick=[], ytick=[]):
@@ -918,8 +919,7 @@ def covariates_fomc():
     }
     return covariates
 
-def create_lin_komb_interactions(party = "D", category = "gender", include_baseline = False,
-                                 include_party = False, L=51):
+def create_lin_komb_interactions(party="D", category="gender", include_baseline=False, include_party=False, L=51):
     dem_ind = covariates_hein_daily()[category]['dem_ind']
     c0 = tf.zeros(L)
     if include_party:
@@ -990,27 +990,27 @@ def create_all_general_descriptive_figures(model, fig_dir: str, author_map, voca
     ### Histograms:
     print("Min author location: " + str(np.min(model.ideal_varfam.location)))
     print("Max author location: " + str(np.max(model.ideal_varfam.location)))
-    hist_author(model, author_map, fig_dir+'ideal_loc_per_author.png',
+    hist_author(model, author_map, os.path.join(fig_dir, 'ideal_loc_per_author.png'),
                 what="loc", grid_from=-2.5, grid_to=2.5, size=(15, 15))
 
     print("Min author scale: " + str(np.min(model.ideal_varfam.scale)))
     print("Max author scale: " + str(np.max(model.ideal_varfam.scale)))
-    hist_author(model, author_map, fig_dir + 'ideal_scl_per_author.png',
+    hist_author(model, author_map, os.path.join(fig_dir, 'ideal_scl_per_author.png'),
                 what="scl", grid_from=1e-3, grid_to=0.2, size=(15, 15))
 
     print("Min log theta mean: " + str(np.min(model.get_Eqmean(model.theta_varfam, log=True))))
     print("Max log theta mean: " + str(np.max(model.get_Eqmean(model.theta_varfam, log=True))))
-    hist_log_theta_means(model, fig_dir+'hist_log_theta_means.png',
+    hist_log_theta_means(model, os.path.join(fig_dir, 'hist_log_theta_means.png'),
                          grid_from=-9, grid_to=2.5, size=(15, 15))
 
     print("Min log beta mean: " + str(np.min(model.get_Eqmean(model.beta_varfam, log=True))))
     print("Max log beta mean: " + str(np.max(model.get_Eqmean(model.beta_varfam, log=True))))
-    hist_log_beta_means(model, fig_dir+'hist_log_beta_means.png',
+    hist_log_beta_means(model, os.path.join(fig_dir, 'hist_log_beta_means.png'),
                         grid_from=-12, grid_to=2.5, size=(15, 15))
 
     # print("Min beta mean: " + str(np.min(model.get_Eqmean(model.beta_varfam, log=False))))
     # print("Max beta mean: " + str(np.max(model.get_Eqmean(model.beta_varfam, log=False))))
-    # hist_log_beta_means(model, fig_dir + 'hist_beta_means.png',
+    # hist_log_beta_means(model, os.path.join(fig_dir, 'hist_beta_means.png'),
     #                     grid_from=0, grid_to=100, size=(15, 15))
 
     # Histogram of posterior means of beta rates + top5 & tail5 words
@@ -1027,20 +1027,20 @@ def create_all_general_descriptive_figures(model, fig_dir: str, author_map, voca
     plt.hist(beta_rates)  # summed over documents
     plt.title("Posterior mean of beta rates")
     plt.xlabel("Beta rate")
-    plt.savefig(fig_dir + "hist_beta_rate.png")
+    plt.savefig(os.path.join(fig_dir, "hist_beta_rate.png"))
     plt.close()
 
     print("Min eta location: " + str(np.min(model.eta_varfam.location)))
     print("Max eta location: " + str(np.max(model.eta_varfam.location)))
-    hist_eta_locations(model, fig_dir+'hist_eta_locations.png',
+    hist_eta_locations(model, os.path.join(fig_dir, 'hist_eta_locations.png'),
                        grid_from=-2.5, grid_to=2.5, size=(15, 15))
 
     print("Min iota location: " + str(np.min(model.iota_varfam.location)))
     print("Max iota location: " + str(np.max(model.iota_varfam.location)))
-    hist_iota_locations(model, fig_dir + 'hist_iota_locations.png',
+    hist_iota_locations(model, os.path.join(fig_dir, 'hist_iota_locations.png'),
                         grid_from=-1.5, grid_to=1.5, size=(10, 5))
 
-    hist_max_theta_over_k(model, fig_dir + 'hist_max_theta_over_k.png', size=(12, 5))
+    hist_max_theta_over_k(model, os.path.join(fig_dir, 'hist_max_theta_over_k.png'), size=(12, 5))
 
     ### Words beta vs eta
     ### The following takes long time to render:
@@ -1056,51 +1056,51 @@ def create_all_general_descriptive_figures(model, fig_dir: str, author_map, voca
     for k in range(tf.math.maximum(model.num_topics // ntopics, 1)):
         topics = k * ntopics + np.array([i for i in range(ntopics)])
         topics = topics[topics < model.num_topics]
-        plot_wordclouds(model, fig_dir+'wordclouds_topics_'+str(topics[0])+"_"+str(topics[-1])+'.png',
+        plot_wordclouds(model, os.path.join(fig_dir, 'wordclouds_topics_'+str(topics[0])+"_"+str(topics[-1])+'.png'),
                         nwords, topics, vocabulary, logscale=False, justeta=False, size=(10, 10))
-        plot_wordclouds(model, fig_dir + 'wordclouds_logscale_topics_' + str(topics[0]) + "_" + str(topics[-1]) + '.png',
+        plot_wordclouds(model, os.path.join(fig_dir, 'wordclouds_logscale_topics_' + str(topics[0]) + "_" + str(topics[-1]) + '.png'),
                         nwords, topics, vocabulary, logscale=True, justeta=False, size=(10, 10))
         # just etas
-        plot_wordclouds(model, fig_dir + 'wordclouds_justeta_topics_' + str(topics[0]) + "_" + str(topics[-1]) + '.png',
+        plot_wordclouds(model, os.path.join(fig_dir, 'wordclouds_justeta_topics_' + str(topics[0]) + "_" + str(topics[-1]) + '.png'),
                         nwords, topics, vocabulary, logscale=False, justeta=True, size=(7, 10))
         plot_wordclouds(model,
-                        fig_dir + 'wordclouds_justeta_logscale_topics_' + str(topics[0]) + "_" + str(topics[-1]) + '.png',
+                        os.path.join(fig_dir, 'wordclouds_justeta_logscale_topics_' + str(topics[0]) + "_" + str(topics[-1]) + '.png'),
                         nwords, topics, vocabulary, logscale=True, justeta=True, size=(7, 10))
 
     ### Wordclouds separately for each topic - for slides
     for k in range(model.num_topics):
-        plot_wordclouds_slides(model, fig_dir + 'wordclouds_logscale_topic_'+str(k)+'.png',
+        plot_wordclouds_slides(model, os.path.join(fig_dir, 'wordclouds_logscale_topic_'+str(k)+'.png'),
                                nwords, k, vocabulary, logscale=True, size=(11, 5))
 
     ### Author-specific theta rates
     if model.prior_choice['theta'] in ["Garte"]:
         x = model.get_Eqmean(model.theta_rate_varfam, log=True)
-        barplot_ordered_labels_top(x, '', fig_dir + 'barplot_theta_rate_Eqlogmean.png', size=(15, 5))
+        barplot_ordered_labels_top(x, '', os.path.join(fig_dir, 'barplot_theta_rate_Eqlogmean.png'), size=(15, 5))
 
     ### Author-specific regression precisions
     if model.prior_choice['ideal_prec'] in ["Naprec"]:
         x = 1/model.get_Eqmean(model.ideal_prec_varfam, log=False)
-        barplot_ordered_labels_top(x, '', fig_dir + 'barplot_ideal_prec_to_var_Eqmean.png', size=(15, 5))
+        barplot_ordered_labels_top(x, '', os.path.join(fig_dir, 'barplot_ideal_prec_to_var_Eqmean.png'), size=(15, 5))
 
     ### Topic-specific eta variances on log-scale
     if model.prior_choice['eta'] in ["NkprecG", "NkprecF"]:
         x = 1.0 / model.get_Eqmean(model.eta_prec_varfam, log=False)
-        barplot_ordered_labels_top(x, 'T', fig_dir + 'barplot_eta_prec_to_var.png', size=(15, 5))
+        barplot_ordered_labels_top(x, 'T', os.path.join(fig_dir, 'barplot_eta_prec_to_var.png'), size=(15, 5))
 
     ### Topic-specific kappa_rho
     if model.prior_choice['eta'] == "NkprecF":
         barplot_ordered_labels_top(model.get_Eqmean(model.eta_prec_rate_varfam, log=False),
-                                   'T', fig_dir + 'barplot_eta_prec_rate.png', size=(15, 5))
+                                   'T', os.path.join(fig_dir, 'barplot_eta_prec_rate.png'), size=(15, 5))
 
     ### Topic-specific omega variances
     if model.prior_choice['iota_prec'] in ["NlprecG", "NlprecF"]:
         x = 1.0 / model.get_Eqmean(model.iota_prec_varfam, log=False)
-        barplot_ordered_labels_top(x, 'C', fig_dir + 'barplot_iota_prec_to_var.png', size=(10, 5))
+        barplot_ordered_labels_top(x, 'C', os.path.join(fig_dir, 'barplot_iota_prec_to_var.png'), size=(10, 5))
 
     ### Coefficient-specific kappa_omega
     if model.prior_choice['iota_prec'] == "NlprecF":
         barplot_ordered_labels_top(model.get_Eqmean(model.iota_prec_rate_varfam, log=False),
-                                   'C', fig_dir + 'barplot_iota_prec_rate.png', size=(10, 5))
+                                   'C', os.path.join(fig_dir, 'barplot_iota_prec_rate.png'), size=(10, 5))
 
 
 def create_all_figures_specific_to_data(model, data_name: str, covariates: str, fig_dir: str, all_author_indices,
@@ -1133,21 +1133,21 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
         ### Wordclouds - ideological positions depending on political party
         for k in range(model.num_topics // ntopics):
             topics = k * ntopics + np.array([i for i in range(ntopics)])
-            plot_wordclouds_parties(model, fig_dir + 'wordclouds_party_topics_' + str(topics[0]) + "_" + str(
-                                        topics[-1]) + '.png',
+            plot_wordclouds_parties(model, os.path.join(fig_dir, 'wordclouds_party_topics_' + str(topics[0]) + "_" + str(
+                                        topics[-1]) + '.png'),
                                     nwords, topics, vocabulary,
                                     iota_based=model.iota_varfam.family != 'deterministic',
                                     logscale=False, size=(7, 10))
-            plot_wordclouds_parties(model, fig_dir + 'wordclouds_party_logscale_topics_' + str(topics[0]) + "_" + str(
-                                        topics[-1]) + '.png',
+            plot_wordclouds_parties(model, os.path.join(fig_dir, 'wordclouds_party_logscale_topics_' + str(topics[0]) + "_" + str(
+                                        topics[-1]) + '.png'),
                                     nwords, topics, vocabulary,
                                     iota_based=model.iota_varfam.family != 'deterministic',
                                     logscale=True, size=(7, 10))
 
         ### Chosen wordclouds
-        plot_wordclouds(model, fig_dir + 'wordclouds_selected_topics.png',
+        plot_wordclouds(model, os.path.join(fig_dir, 'wordclouds_selected_topics.png'),
                         nwords, selected_topics, vocabulary, logscale=False, size=(10, 10))
-        plot_wordclouds(model, fig_dir + 'wordclouds_logscale_selected_topics.png',
+        plot_wordclouds(model, os.path.join(fig_dir, 'wordclouds_logscale_selected_topics.png'),
                         nwords, selected_topics, vocabulary, logscale=True, size=(10, 10))
 
         # intercept = model.iota_varfam.location[:, 0]
@@ -1157,16 +1157,16 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
             if covariates in ['party', 'all_no_int', 'all']:
                 ### Best discriminating topics wrt party (Republican vs Democrats)
                 topics = tf.math.top_k(tf.math.abs(model.iota_varfam.location[:, 1]), ntopics).indices
-                plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_party_wordclouds.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_party_wordclouds.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=False, size=(10, 10))
-                plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_party_wordclouds_logscale.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_party_wordclouds_logscale.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=True, size=(10, 10))
 
                 ### Worst discriminating topics wrt party (Republican vs Democrats)
                 topics = tf.math.top_k(-tf.math.abs(model.iota_varfam.location[:, 1]), ntopics).indices
-                plot_wordclouds(model, fig_dir + 'tail'+str(ntopics)+'_party_wordclouds.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'tail'+str(ntopics)+'_party_wordclouds.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=False, size=(10, 10))
-                plot_wordclouds(model, fig_dir + 'tail'+str(ntopics)+'_party_wordclouds_logscale.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'tail'+str(ntopics)+'_party_wordclouds_logscale.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=True, size=(10, 10))
 
             if covariates in ['all_no_int', 'all']:
@@ -1178,11 +1178,11 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                     discrepancyR = tf.math.abs(model.iota_varfam.location[:, 3]+model.iota_varfam.location[:, 3+16])
                     discrepancy = tf.math.maximum(discrepancyD, discrepancyR)
                 topics = tf.math.top_k(discrepancy, ntopics).indices
-                plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_gender_wordclouds.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_gender_wordclouds.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=False, size=(10, 10))
-                plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_gender_wordclouds_logscale.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_gender_wordclouds_logscale.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=True, size=(10, 10))
-                barplot_ordered_labels_top(discrepancy, 'T', fig_dir + 'female_vs_male_by_topic.png', size=(15, 5))
+                barplot_ordered_labels_top(discrepancy, 'T', os.path.join(fig_dir, 'female_vs_male_by_topic.png'), size=(15, 5))
 
                 ### Best discriminating topics wrt region (std between regions)
                 xD = tf.stack((intercept,
@@ -1195,7 +1195,7 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                 if covariates == 'all_no_int':
                     discrepancy = discrepancyD
                     plot_heatmap_coefficients(tf.transpose(xD), "Region coefficients",
-                                              fig_dir + 'coefficients_region.png',
+                                              os.path.join(fig_dir, 'coefficients_region.png'),
                                               xtick=["Northeast", "Midwest", "Southeast", "South", "West"],
                                               ytick=range(model.num_topics))
                 else:
@@ -1208,20 +1208,21 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                     discrepancyR = tf.math.reduce_std(xR, axis=0)
                     discrepancy = tf.math.maximum(discrepancyD, discrepancyR)
                     plot_heatmap_coefficients(tf.transpose(xD), "Region coefficients Democrats",
-                                              fig_dir + 'coefficients_region_D.png',
+                                              os.path.join(fig_dir, 'coefficients_region_D.png'),
                                               xtick=["Northeast", "Midwest", "Southeast", "South", "West"],
                                               ytick=range(model.num_topics))
                     plot_heatmap_coefficients(tf.transpose(xR), "Region coefficients Republicans",
-                                              fig_dir + 'coefficients_region_R.png',
+                                              os.path.join(fig_dir, 'coefficients_region_R.png'),
                                               xtick=["Northeast", "Midwest", "Southeast", "South", "West"],
                                               ytick=range(model.num_topics))
 
                 topics = tf.math.top_k(discrepancy, ntopics).indices
-                plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_region_wordclouds.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_region_wordclouds.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=False, size=(10, 10))
-                plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_region_wordclouds_logscale.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_region_wordclouds_logscale.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=True, size=(10, 10))
-                barplot_ordered_labels_top(discrepancy, 'T', fig_dir + 'region_std_by_topic.png', size=(15, 5))
+                barplot_ordered_labels_top(discrepancy, 'T', os.path.join(fig_dir, 'region_std_by_topic.png'),
+                                           size=(15, 5))
 
 
                 ### Best discriminating topics wrt age (Silent vs Gen X generation)
@@ -1232,19 +1233,20 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                     discrepancyR = tf.math.abs(model.iota_varfam.location[:, 9] + model.iota_varfam.location[:, 9 + 16])
                     discrepancy = tf.math.maximum(discrepancyD, discrepancyR)
                 topics = tf.math.top_k(discrepancy, ntopics).indices
-                plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_generation_wordclouds.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_generation_wordclouds.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=False, size=(10, 10))
-                plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_generation_wordclouds_logscale.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_generation_wordclouds_logscale.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=True, size=(10, 10))
                 x = tf.stack((intercept,
                               intercept + model.iota_varfam.location[:, 8],
                               intercept + model.iota_varfam.location[:, 9]
                               ))
                 plot_heatmap_coefficients(tf.transpose(x), "Generation coefficients",
-                                          fig_dir + 'coefficients_generation.png',
+                                          os.path.join(fig_dir, 'coefficients_generation.png'),
                                           xtick=["Silent", "Boomer", "Gen X"],
                                           ytick=range(model.num_topics))
-                barplot_ordered_labels_top(tf.math.reduce_std(x, axis=0), 'T', fig_dir + 'generation_std_by_topic.png', size=(15, 5))
+                barplot_ordered_labels_top(tf.math.reduce_std(x, axis=0), 'T',
+                                           os.path.join(fig_dir, 'generation_std_by_topic.png'), size=(15, 5))
 
                 ### Best discriminating topics wrt experience  (experience in congress)
                 xD = tf.stack((intercept + model.iota_varfam.location[:, 11],
@@ -1255,7 +1257,7 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                 if covariates == 'all_no_int':
                     discrepancy = discrepancyD
                     plot_heatmap_coefficients(tf.transpose(xD), "Experience coefficients",
-                                              fig_dir + 'coefficients_exper.png',
+                                              os.path.join(fig_dir, 'coefficients_exper.png'),
                                               xtick=["(0,1]", "(1,10]", "(10,100]"],
                                               ytick=range(model.num_topics))
                 else:
@@ -1266,19 +1268,20 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                     discrepancyR = tf.math.reduce_std(xR, axis=0)
                     discrepancy = tf.math.maximum(discrepancyD, discrepancyR)
                     plot_heatmap_coefficients(tf.transpose(xD), "Experience coefficients Democrats",
-                                              fig_dir + 'coefficients_exper_D.png',
+                                              os.path.join(fig_dir, 'coefficients_exper_D.png'),
                                               xtick=["(0,1]", "(1,10]", "(10,100]"],
                                               ytick=range(model.num_topics))
                     plot_heatmap_coefficients(tf.transpose(xR), "Experience coefficients Republicans",
-                                              fig_dir + 'coefficients_exper_R.png',
+                                              os.path.join(fig_dir, 'coefficients_exper_R.png'),
                                               xtick=["(0,1]", "(1,10]", "(10,100]"],
                                               ytick=range(model.num_topics))
                 topics = tf.math.top_k(discrepancy, ntopics).indices
-                plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_experience_wordclouds.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_experience_wordclouds.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=False, size=(10, 10))
-                plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_experience_wordclouds_logscale.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_experience_wordclouds_logscale.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=True, size=(10, 10))
-                barplot_ordered_labels_top(discrepancy, 'T', fig_dir + 'exper_std_by_topic.png', size=(15, 5))
+                barplot_ordered_labels_top(discrepancy, 'T', os.path.join(fig_dir, 'exper_std_by_topic.png'),
+                                           size=(15, 5))
 
                 ### Best discriminating topics wrt religion (experience in congress)
                 xD = tf.stack((intercept,
@@ -1294,7 +1297,7 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                 if covariates == 'all_no_int':
                     discrepancy = discrepancyD
                     plot_heatmap_coefficients(tf.transpose(xD), "Religion coefficients",
-                                              fig_dir + 'coefficients_religion.png',
+                                              os.path.join(fig_dir, 'coefficients_religion.png'),
                                               xtick=["Other", "Catholic", "Presbyterian", "Baptist",
                                                      "Jewish", "Methodist", "Lutheran", "Mormon"],
                                               ytick=range(model.num_topics))
@@ -1311,21 +1314,22 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                     discrepancyR = tf.math.reduce_std(xR, axis=0)
                     discrepancy = tf.math.maximum(discrepancyD, discrepancyR)
                     plot_heatmap_coefficients(tf.transpose(xD), "Religion coefficients Democrats",
-                                              fig_dir + 'coefficients_religion_D.png',
+                                              os.path.join(fig_dir, 'coefficients_religion_D.png'),
                                               xtick=["Other", "Catholic", "Presbyterian", "Baptist",
                                                      "Jewish", "Methodist", "Lutheran", "Mormon"],
                                               ytick=range(model.num_topics))
                     plot_heatmap_coefficients(tf.transpose(xR), "Religion coefficients Republicans",
-                                              fig_dir + 'coefficients_religion_R.png',
+                                              os.path.join(fig_dir, 'coefficients_religion_R.png'),
                                               xtick=["Other", "Catholic", "Presbyterian", "Baptist",
                                                      "Jewish", "Methodist", "Lutheran", "Mormon"],
                                               ytick=range(model.num_topics))
                 topics = tf.math.top_k(discrepancy, ntopics).indices
-                plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_religion_wordclouds.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_religion_wordclouds.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=False, size=(10, 10))
-                plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_religion_wordclouds_logscale.png',
+                plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_religion_wordclouds_logscale.png'),
                                 nwords, topics.numpy(), vocabulary, logscale=True, size=(10, 10))
-                barplot_ordered_labels_top(discrepancy, 'T', fig_dir + 'religion_std_by_topic.png', size=(15, 5))
+                barplot_ordered_labels_top(discrepancy, 'T', os.path.join(fig_dir, 'religion_std_by_topic.png'),
+                                           size=(15, 5))
 
             if covariates == 'all':
                 for category in ['gender', 'region', 'generation', 'exper_cong', 'religion']:
@@ -1340,7 +1344,7 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                     ccpR = linear_combination_CCP(cR, model.iota_varfam.location, Sigma, mu0=0.0, separately=False)
                     min_p_value = tf.math.minimum(ccpD, ccpR)
                     topics_minccp = tf.math.top_k(-min_p_value, ntopics).indices
-                    plot_wordclouds(model, fig_dir + 'top'+str(ntopics)+'_' + category + '_wordclouds_minccp_D_R.png',
+                    plot_wordclouds(model, os.path.join(fig_dir, 'top'+str(ntopics)+'_' + category + '_wordclouds_minccp_D_R.png'),
                                     nwords, topics_minccp.numpy(), vocabulary, logscale=True, size=(10, 10))
 
             if covariates == 'all_no_int':
@@ -1359,7 +1363,7 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                     ccp[category] = np.append(ccptopics.numpy(), ccpaveraged.numpy())
                 table = pd.DataFrame(ccp)
                 plot_ccps(table, 'Significance in no-interaction model',
-                             fig_dir + 'ccps_table.png', size=(8, 13))
+                          os.path.join(fig_dir, 'ccps_table.png'), size=(8, 13))
 
             if covariates == 'all':
                 # Model with interactions
@@ -1392,11 +1396,11 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                     ccpR[category] = np.append(ccptopicsR.numpy(), ccpaveragedR.numpy())
                     ccpInt[category] = np.append(ccptopicsInt.numpy(), ccpaveragedInt.numpy())
                 plot_ccps(pd.DataFrame(ccpD), 'Significance for Democrats',
-                             fig_dir + 'ccps_table_Democrats.png', size=(7, 13))
+                             os.path.join(fig_dir, 'ccps_table_Democrats.png'), size=(7, 13))
                 plot_ccps(pd.DataFrame(ccpR), 'Significance for Republicans',
-                             fig_dir + 'ccps_table_Republicans.png', size=(7, 13))
+                             os.path.join(fig_dir, 'ccps_table_Republicans.png'), size=(7, 13))
                 plot_ccps(pd.DataFrame(ccpInt), 'Significance of interaction terms',
-                             fig_dir + 'ccps_table_interactions.png', size=(7, 13))
+                             os.path.join(fig_dir, 'ccps_table_interactions.png'), size=(7, 13))
 
             if covariates == 'all':
                 # we have model with interactions
@@ -1440,7 +1444,7 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                     std_rep = tf.math.reduce_std(rep, axis=1)
                     std_max = tf.math.maximum(std_dem, std_rep)
                     topics_max = tf.math.top_k(std_max, ntopics).indices
-                    plot_wordclouds(model, fig_dir + 'top5_'+category+'_wordclouds_max_D_R.png',
+                    plot_wordclouds(model, os.path.join(fig_dir, 'top5_'+category+'_wordclouds_max_D_R.png'),
                                     nwords, topics_max.numpy(), vocabulary, logscale=True, size=(10, 10))
                     for include_party in [True, False]:
                         cD0 = tf.zeros(model.iota_varfam.location.shape[1])
@@ -1627,7 +1631,7 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                         # plt.show()
                         # Save the heatmap
                         plt.gcf().set_size_inches((8+len(cat_names), 13))
-                        plt.savefig(fig_dir + 'coefficients_by_party_'+include_party_label+'_'+category+'.png',
+                        plt.savefig(os.path.join(fig_dir, 'coefficients_by_party_'+include_party_label+'_'+category+'.png'),
                                     bbox_inches='tight')
                         plt.close()
 
@@ -1765,7 +1769,7 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                 plt.margins(x=0, y=0)
                 plt.tight_layout()
                 # plt.show()
-                plt.savefig(fig_dir + 'ideal_points_' + how_party + label_t + '.png',
+                plt.savefig(os.path.join(fig_dir, 'ideal_points_' + how_party + label_t + '.png'),
                             bbox_inches='tight')
                 plt.close()
 
@@ -1782,12 +1786,12 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
                           intercept + model.iota_varfam.location[:, 8]
                           ))
             topics = tf.math.top_k(tf.math.reduce_std(x, axis=0), ntopics).indices
-            plot_wordclouds(model, fig_dir + 'top5_party_wordclouds.png',
+            plot_wordclouds(model, os.path.join(fig_dir, 'top5_party_wordclouds.png'),
                             nwords, topics.numpy(), vocabulary, logscale=False, size=(10, 10))
-            plot_wordclouds(model, fig_dir + 'top5_party_wordclouds_logscale.png',
+            plot_wordclouds(model, os.path.join(fig_dir, 'top5_party_wordclouds_logscale.png'),
                             nwords, topics.numpy(), vocabulary, logscale=True, size=(10, 10))
             plot_heatmap_coefficients(tf.transpose(x), "Party coefficients",
-                                      fig_dir + 'coefficients_region.png',
+                                      os.path.join(fig_dir, 'coefficients_region.png'),
                                       xtick=["Other", "ODS", "ČSSD", "ANO", "TOP-09",
                                              "STAN", "Piráti", "KDU-ČSL", "KSČM", "Nezávislý"],
                                       ytick=range(model.num_topics))
@@ -1865,7 +1869,7 @@ def create_all_figures_specific_to_data(model, data_name: str, covariates: str, 
             plt.tight_layout()
             plt.gcf().set_size_inches((15, 10))
             # plt.show()
-            plt.savefig(fig_dir + 'ideal_points_in_time_' + str(k) + '.png')
+            plt.savefig(os.path.join(fig_dir, 'ideal_points_in_time_' + str(k) + '.png'))
             plt.close()
 
 
@@ -1892,21 +1896,21 @@ def hist_word_counts(countsSparse, countsNonzero, fig_dir, name_start="orig_"):
     plt.title("Log-frequencies of word counts")
     plt.ylabel("Log-frequency")
     plt.xlabel("Word count in a document")
-    plt.savefig(fig_dir + name_start + "log_hist_counts.png")
+    plt.savefig(os.path.join(fig_dir, name_start + "log_hist_counts.png"))
     plt.close()
 
     # Word counts summed over documents
     plt.hist(tf.sparse.reduce_sum(countsSparse, axis=0), histtype='step', bins=100)  # summed over documents
     plt.title("Word counts across all documents")
     plt.xlabel("Word frequencies")
-    plt.savefig(fig_dir + name_start + "hist_counts_words.png")
+    plt.savefig(os.path.join(fig_dir, name_start + "hist_counts_words.png"))
     plt.close()
 
     # Word counts summed over words.
     plt.hist(tf.sparse.reduce_sum(countsSparse, axis=1), histtype='step', bins=100)  # summed over words
     plt.title("Word counts across all words")
     plt.xlabel("Document length")
-    plt.savefig(fig_dir + name_start + "hist_counts_docs.png")
+    plt.savefig(os.path.join(fig_dir, name_start + "hist_counts_docs.png"))
     plt.close()
 
     # Number of different words used in the document
@@ -1914,7 +1918,7 @@ def hist_word_counts(countsSparse, countsNonzero, fig_dir, name_start="orig_"):
     plt.hist(x, histtype='step', bins=100)
     plt.title("Words in a document")
     plt.xlabel("Word count per document")
-    plt.savefig(fig_dir + name_start + "hist_word_in_doc.png")
+    plt.savefig(os.path.join(fig_dir, name_start + "hist_word_in_doc.png"))
     plt.close()
 
     # Number of documents in which the word appears
@@ -1922,6 +1926,6 @@ def hist_word_counts(countsSparse, countsNonzero, fig_dir, name_start="orig_"):
     plt.hist(x, histtype='step', bins=100)
     plt.title("Documents with given word")
     plt.xlabel("Document count per word")
-    plt.savefig(fig_dir + name_start + "hist_doc_having_word.png")
+    plt.savefig(os.path.join(fig_dir, name_start + "hist_doc_having_word.png"))
     plt.close()
 

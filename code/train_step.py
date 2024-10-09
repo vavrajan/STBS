@@ -8,7 +8,7 @@ def train_step(model, inputs, outputs, optim, seed, step=None):
     """Perform a single training step.
 
     Args:
-        model: The STBSM.
+        model: The STBS.
         inputs: A dictionary of input tensors.
         outputs: A sparse tensor containing word counts.
         optim: An optimizer.
