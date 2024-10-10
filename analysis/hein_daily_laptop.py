@@ -1,5 +1,3 @@
-### Generate some example to use TBIP on
-
 # Import global packages
 import os
 import time
@@ -17,13 +15,13 @@ import matplotlib.pyplot as plt
 
 
 # Import local modules
-from STBIP.code.var_and_prior_family import VariationalFamily, PriorFamily
-from STBIP.code.train_step import train_step
-from STBIP.code.utils import print_topics, print_ideal_points, log_static_features
-from STBIP.code.plotting_functions import create_all_general_descriptive_figures, create_all_figures_specific_to_data
-from STBIP.code.input_pipeline import build_input_pipeline
-from STBIP.code.stbip_model import STBIP
-from STBIP.code.create_X import create_X
+from STBS.code.var_and_prior_family import VariationalFamily, PriorFamily
+from STBS.code.train_step import train_step
+from STBS.code.utils import print_topics, print_ideal_points, log_static_features
+from STBS.code.plotting_functions import create_all_general_descriptive_figures, create_all_figures_specific_to_data
+from STBS.code.input_pipeline import build_input_pipeline
+from STBS.code.stbs import STBS
+from STBS.code.create_X import create_X
 
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -173,21 +171,21 @@ fitted_topic_rate = None
 
 optim = tf.optimizers.Adam(learning_rate=learning_rate)
 
-model = STBIP(num_documents,
-              num_topics,
-              num_words,
-              num_authors,
-              num_samples,
-              X,
-              all_author_indices,
-              initial_ideal_location=initial_ideal_location,
-              prior_hyperparameter=prior_hyperparameter,
-              prior_choice=prior_choice,
-              batch_size=batch_size,
-              exact_entropy=exact_entropy,
-              geom_approx=geom_approx,
-              aux_prob_sparse=aux_prob_sparse,
-              iota_coef_jointly=True)
+model = STBS(num_documents,
+             num_topics,
+             num_words,
+             num_authors,
+             num_samples,
+             X,
+             all_author_indices,
+             initial_ideal_location=initial_ideal_location,
+             prior_hyperparameter=prior_hyperparameter,
+             prior_choice=prior_choice,
+             batch_size=batch_size,
+             exact_entropy=exact_entropy,
+             geom_approx=geom_approx,
+             aux_prob_sparse=aux_prob_sparse,
+             iota_coef_jointly=True)
 
 
 

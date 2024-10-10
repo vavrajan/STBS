@@ -19,17 +19,18 @@ import sys
 # first directory here is the one where analysis_cluster is located
 # this is ./STBS/analysis/analysis_cluster
 # So add ./ to the list so that it can find ./STBS.code....
-sys.path.append(os.path.dirname(os.path.dirname(sys.path[0])))
+# sys.path.append(os.path.dirname(os.path.dirname(sys.path[0])))
+sys.path.append(os.path.join(os.getcwd(), 'code'))
 
-from STBS.code.check_prior import get_and_check_prior_choice, get_and_check_prior_hyperparameter
-from STBS.code.input_pipeline import build_input_pipeline
-from STBS.code.create_X import create_X
-from STBS.code.STBS import STBS
-from STBS.code.train_step import train_step
-from STBS.code.information_criteria import get_variational_information_criteria
-from STBS.code.utils import print_topics, print_ideal_points, log_static_features
-from STBS.code.plotting_functions import create_all_general_descriptive_figures, create_all_figures_specific_to_data
-from STBS.code.influential_speeches import find_most_influential_speeches
+from check_prior import get_and_check_prior_choice, get_and_check_prior_hyperparameter
+from input_pipeline import build_input_pipeline
+from create_X import create_X
+from stbs import STBS
+from train_step import train_step
+from information_criteria import get_variational_information_criteria
+from utils import print_topics, print_ideal_points, log_static_features
+from plotting_functions import create_all_general_descriptive_figures, create_all_figures_specific_to_data
+from influential_speeches import find_most_influential_speeches
 
 ## FLAGS
 flags.DEFINE_string("data_name", default="hein-daily", help="Data source being used.")
@@ -141,7 +142,7 @@ flags.DEFINE_enum("ideal_prec", default="Nfix", enum_values=["Nfix", "Nprec", "N
 flags.DEFINE_enum("iota_dim", default="l", enum_values=["l", "kl"],
                   help="Dimensions of the regression coefficients for ideological positions:"
                        "l=There is only one set of coefficients,"
-                       "lk=Each topic has its own set of coefficients.")
+                       "kl=Each topic has its own set of coefficients.")
 flags.DEFINE_enum("iota_mean", default="None", enum_values=["None", "Nlmean"],
                   help="Prior mean for the regression coefficients iota:"
                        "None=Locations fixed, iota_mean does not appear in the model,"
@@ -216,19 +217,28 @@ def main(argv):
     ### Setting up directories
     project_dir = os.getcwd()
     source_dir = os.path.join(project_dir, 'data', FLAGS.data_name)
-    fit_dir = os.path.join(source_dir, 'pf-fits')
+    pf_fit_dir = os.path.join(source_dir, 'pf-fits')
     data_dir = os.path.join(source_dir, 'clean')
-    save_dir = os.path.join(source_dir, 'fits', FLAGS.checkpoint_name)
-    fig_dir = os.path.join(source_dir, 'figs', FLAGS.checkpoint_name)
-    txt_dir = os.path.join(source_dir, 'txts', FLAGS.checkpoint_name)
+    save_dir = os.path.join(source_dir, 'fits')
+    fig_dir = os.path.join(source_dir, 'figs')
+    txt_dir = os.path.join(source_dir, 'txts')
     checkpoint_dir = os.path.join(save_dir, 'checkpoints')
 
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
-
     if not os.path.exists(fig_dir):
         os.mkdir(fig_dir)
+    if not os.path.exists(txt_dir):
+        os.mkdir(txt_dir)
 
+    save_dir = os.path.join(save_dir, FLAGS.checkpoint_name)
+    fig_dir = os.path.join(fig_dir, FLAGS.checkpoint_name)
+    txt_dir = os.path.join(txt_dir, FLAGS.checkpoint_name)
+
+    if not os.path.exists(save_dir):
+        os.mkdir(save_dir)
+    if not os.path.exists(fig_dir):
+        os.mkdir(fig_dir)
     if not os.path.exists(txt_dir):
         os.mkdir(txt_dir)
 
@@ -271,10 +281,10 @@ def main(argv):
     if FLAGS.pre_initialize_parameters:
         # Run 'poisson_factorization.py' first to store the initial values.
         add = str(FLAGS.num_topics) + str(FLAGS.addendum)
-        fitted_document_shape = np.load(os.path.join(fit_dir, "document_shape_K" + add + ".npy")).astype(np.float32)
-        fitted_document_rate = np.load(os.path.join(fit_dir, "document_rate_K" + add + ".npy")).astype(np.float32)
-        fitted_topic_shape = np.load(os.path.join(fit_dir, "topic_shape_K" + add + ".npy")).astype(np.float32)
-        fitted_topic_rate = np.load(os.path.join(fit_dir, "topic_rate_K" + add + ".npy")).astype(np.float32)
+        fitted_document_shape = np.load(os.path.join(pf_fit_dir, "document_shape_K" + add + ".npy")).astype(np.float32)
+        fitted_document_rate = np.load(os.path.join(pf_fit_dir, "document_rate_K" + add + ".npy")).astype(np.float32)
+        fitted_topic_shape = np.load(os.path.join(pf_fit_dir, "topic_shape_K" + add + ".npy")).astype(np.float32)
+        fitted_topic_rate = np.load(os.path.join(pf_fit_dir, "topic_rate_K" + add + ".npy")).astype(np.float32)
     else:
         fitted_document_shape = None
         fitted_document_rate = None

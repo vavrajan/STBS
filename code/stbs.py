@@ -7,7 +7,7 @@ import scipy.sparse as sparse
 import warnings
 
 # Import local modules
-from STBS.code.var_and_prior_family import VariationalFamily, PriorFamily
+from var_and_prior_family import VariationalFamily, PriorFamily
 
 prior_hyperparameter = {
     "theta": {"shape": 0.5, "rate": 0.5},
@@ -1603,7 +1603,7 @@ class STBS(tf.keras.Model):
             step: The current training step.
         """
         self.batch_size = tf.shape(outputs)[0]
-        self.print_non_finite_parameters("At start of perform_cavi_updates for step " + str(step.numpy()))
+        self.print_non_finite_parameters("At start of perform_cavi_updates for step " + str(step))
 
         if self.aux_prob_sparse:
             # "Faster" SPARSE calculation
@@ -1633,7 +1633,7 @@ class STBS(tf.keras.Model):
         # The updates all use the following ideological term and mean of verbosities
         expected_ideological_term = self.get_ideological_term(inputs['author_indices'])
         self.check_and_print_non_finite(expected_ideological_term,
-                                        "After updating expected_ideological_term for step " + str(step.numpy()),
+                                        "After updating expected_ideological_term for step " + str(step),
                                         name='expected_ideological_term')
 
 
@@ -1650,28 +1650,28 @@ class STBS(tf.keras.Model):
         exp_verbosity_Eqmean = tf.gather(self.get_Eqmean(self.exp_verbosity_varfam, log=False),
                                          inputs['author_indices'], axis=0)
         self.check_and_print_non_finite(exp_verbosity_Eqmean,
-                                        "After updating exp_verbosity_Eqmean for step " + str(step.numpy()),
+                                        "After updating exp_verbosity_Eqmean for step " + str(step),
                                         name='exp_verbosity_Eqmean')
         theta_Eqmean = self.get_gamma_distribution_Eqmean_subset(self.theta_varfam,
                                                                  inputs['document_indices'], log=False)
         self.check_and_print_non_finite(theta_Eqmean,
-                                        "After updating theta_Eqmean for step " + str(step.numpy()),
+                                        "After updating theta_Eqmean for step " + str(step),
                                         name='theta_Eqmean')
 
-        self.print_non_finite_parameters("After obtaining auxiliary variables for step " + str(step.numpy()))
+        self.print_non_finite_parameters("After obtaining auxiliary variables for step " + str(step))
 
         ## Beta = objective topics + randomized hyperparameters
         # Update the objective topics beta and randomized hyperparameters of its prior.
         self.cavi_update_beta_parameters(expected_ideological_term,
                                          beta_shape_shift, theta_Eqmean, exp_verbosity_Eqmean)
-        self.print_non_finite_parameters("After updating beta parameters for step " + str(step.numpy()))
+        self.print_non_finite_parameters("After updating beta parameters for step " + str(step))
         print(self.beta_varfam.rate[2, 3150:3155])
         print(self.beta_varfam.rate[8, 5522:5524])
 
         beta_Eqmean = self.beta_varfam.shape / self.beta_varfam.rate
         if self.beta_rate_varfam.family != 'deterministic':
             self.cavi_update_beta_rate_parameters(beta_Eqmean)
-            self.print_non_finite_parameters("After updating beta_rate parameters for step " + str(step.numpy()))
+            self.print_non_finite_parameters("After updating beta_rate parameters for step " + str(step))
         # else there is nothing to be updated!
 
 
@@ -1681,7 +1681,7 @@ class STBS(tf.keras.Model):
         self.cavi_update_theta_parameters(expected_ideological_term,
                                           theta_shape_shift, beta_Eqmean, exp_verbosity_Eqmean,
                                           inputs['document_indices'], inputs['author_indices'])
-        self.print_non_finite_parameters("After updating theta parameters for step " + str(step.numpy()))
+        self.print_non_finite_parameters("After updating theta parameters for step " + str(step))
         # Update theta_Eqmean after the change of the parameters
         # theta_Eqmean shall not be overwritten (proper tensorflow use)
         theta_Eqmean_updated = self.get_gamma_distribution_Eqmean_subset(self.theta_varfam,
@@ -1689,7 +1689,7 @@ class STBS(tf.keras.Model):
         if self.theta_rate_varfam.family != 'deterministic':
             self.cavi_update_theta_rate_parameters(theta_Eqmean_updated,
                                                    inputs['document_indices'], inputs['author_indices'])
-            self.print_non_finite_parameters("After updating theta_rate parameters for step " + str(step.numpy()))
+            self.print_non_finite_parameters("After updating theta_rate parameters for step " + str(step))
         # else there is nothing to be updated!
 
 
@@ -1700,7 +1700,7 @@ class STBS(tf.keras.Model):
         if self.prior_choice["exp_verbosity"] == "Gfix":
             self.cavi_update_exp_verbosity_parameters(document_counts, expected_ideological_term,
                                                       theta_Eqmean_updated, beta_Eqmean, inputs['author_indices'])
-            self.print_non_finite_parameters("After updating exp_verbosity parameters for step " + str(step.numpy()))
+            self.print_non_finite_parameters("After updating exp_verbosity parameters for step " + str(step))
 
         ## Parameters for etas and ideals cannot be updated by CAVI due to complicated shape of expected_ideological_term.
         ## Hence, they are updated later by stochastic gradient approach.
@@ -1709,12 +1709,12 @@ class STBS(tf.keras.Model):
         ## Randomized hyperparameters for Eta = ideological topics.
         if self.eta_prec_varfam.family != 'deterministic':
             self.cavi_update_eta_prec_parameters()
-            self.print_non_finite_parameters("After updating eta_prec parameters for step " + str(step.numpy()))
+            self.print_non_finite_parameters("After updating eta_prec parameters for step " + str(step))
         # else there is nothing to be updated!
 
         if self.eta_prec_rate_varfam.family != 'deterministic':
             self.cavi_update_eta_prec_rate_parameters()
-            self.print_non_finite_parameters("After updating eta_prec_rate parameters for step " + str(step.numpy()))
+            self.print_non_finite_parameters("After updating eta_prec_rate parameters for step " + str(step))
         # else there is nothing to be updated!
 
 
@@ -1722,27 +1722,27 @@ class STBS(tf.keras.Model):
         ## Randomized hyperparameters for Ideal = ideological positions.
         if self.ideal_prec_varfam.family != 'deterministic':
             self.cavi_update_ideal_prec_parameters()
-            self.print_non_finite_parameters("After updating ideal_prec for step " + str(step.numpy()))
+            self.print_non_finite_parameters("After updating ideal_prec for step " + str(step))
 
         # Then the regression part of the model. First update iota_prec.
         if self.iota_prec_varfam.family != 'deterministic':
             self.cavi_update_iota_prec_parameters()
-            self.print_non_finite_parameters("After updating iota_prec parameters for step " + str(step.numpy()))
+            self.print_non_finite_parameters("After updating iota_prec parameters for step " + str(step))
         # Compute iota_prec_Eqmean --> will be used several times in other updates.
         iota_prec_Eqmean = self.get_Eqmean(self.iota_prec_varfam)
 
         # Other updates can be done in an arbitrary order.
         if self.iota_varfam.family != 'deterministic':
             self.cavi_update_iota_parameters(iota_prec_Eqmean)
-            self.print_non_finite_parameters("After updating iota parameters for step " + str(step.numpy()))
+            self.print_non_finite_parameters("After updating iota parameters for step " + str(step))
 
         if self.iota_mean_varfam.family != 'deterministic':
             self.cavi_update_iota_mean_parameters(iota_prec_Eqmean)
-            self.print_non_finite_parameters("After updating iota_mean parameters for step " + str(step.numpy()))
+            self.print_non_finite_parameters("After updating iota_mean parameters for step " + str(step))
 
         if self.iota_prec_rate_varfam.family != 'deterministic':
             self.cavi_update_iota_prec_rate_parameters(iota_prec_Eqmean)
-            self.print_non_finite_parameters("After updating iota_prec_rate parameters for step " + str(step.numpy()))
+            self.print_non_finite_parameters("After updating iota_prec_rate parameters for step " + str(step))
 
 
     def get_topic_means(self):
