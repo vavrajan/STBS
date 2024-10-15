@@ -13,4 +13,4 @@ ml miniconda3-4.10.3-gcc-12.2.0-ibprkvn
 cd /home/jvavra/STBS/
 conda activate tf_TBIP
 
-python /home/jvavra/STBS/analysis/analysis_cluster.py  --num_epochs=1000  --data_name=hein-daily  --checkpoint_name=STBS_ideal_ak_all114_K25  --addendum=114  --num_topics=25  --pre_initialize_parameters=True  --exact_entropy=True  --geom_approx=False  --iota_coef_jointly=True  --theta=Garte  --exp_verbosity=None  --beta=Gvrte  --eta=NkprecF  --covariates=all  --ideal_dim=ak  --ideal_mean=Nreg  --ideal_prec=Naprec  --iota_dim=kl  --iota_mean=Nlmean  --iota_prec=NlprecF
+python /home/jvavra/STBS/analysis/estimate_STBS_cluster.py  --num_epochs=1000  --data_name=hein-daily  --checkpoint_name=STBS_ideal_ak_all114_K25  --addendum=114  --num_topics=25  --pre_initialize_parameters=True  --exact_entropy=True  --geom_approx=False  --iota_coef_jointly=True  --theta=Garte  --exp_verbosity=None  --beta=Gvrte  --eta=NkprecF  --covariates=all  --ideal_dim=ak  --ideal_mean=Nreg  --ideal_prec=Naprec  --iota_dim=kl  --iota_mean=Nlmean  --iota_prec=NlprecF

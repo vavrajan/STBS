@@ -31,6 +31,39 @@ num_epochs = 1000
 
 ## Different model settings
 scenarios = {}
+# classical TBIP with Gamma variational families by Keyon and Vafa
+for i in addenda:
+    addendum = str(i)
+    for K in Ks:
+        name = "TBIP_" + addendum + "_K" + str(K)
+        scenarios[name] = {"checkpoint_name": name,
+                           "addendum": addendum,
+                           "num_topics": K,
+                           "pre_initialize_parameters": True,
+                           "exact_entropy": False, "geom_approx": True,
+                           "iota_coef_jointly": False, # irrelevant
+                           "theta": "Gfix", "exp_verbosity": "LNfix", "beta": "Gfix",
+                           "eta": "Nfix",
+                           "covariates": "None", # irrelevant
+                           "ideal_dim": "a", "ideal_mean": "Nfix", "ideal_prec": "Nfix",
+                           "iota_dim": "l", "iota_mean": "None", "iota_prec": "Nfix"} # irrelevant
+# ideological positions fixed for all topics
+for i in addenda:
+    addendum = str(i)
+    for K in Ks:
+        for covariates in ["party", "all_no_int", "all"]:
+            name = "STBS_ideal_a_" + covariates + addendum + "_K" + str(K)
+            scenarios[name] = {"checkpoint_name": name,
+                               "addendum": addendum,
+                               "num_topics": K,
+                               "pre_initialize_parameters": True,
+                               "exact_entropy": True, "geom_approx": False,
+                               "iota_coef_jointly": True,
+                               "theta": "Garte", "exp_verbosity": "None", "beta": "Gvrte",
+                               "eta": "NkprecF",
+                               "covariates": covariates,
+                               "ideal_dim": "a", "ideal_mean": "Nreg", "ideal_prec": "Nprec",
+                               "iota_dim": "l", "iota_mean": "None", "iota_prec": "NlprecG"}
 # topic-specific ideological positions
 for i in addenda:
     addendum = str(i)
@@ -49,23 +82,6 @@ for i in addenda:
                                "ideal_dim": "ak", "ideal_mean": "Nreg", "ideal_prec": "Naprec",
                                "iota_dim": "kl", "iota_mean": "Nlmean", "iota_prec": "NlprecF"}
 
-# ideological positions fixed for all topics
-for i in addenda:
-    addendum = str(i)
-    for K in Ks:
-        for covariates in ["party", "all_no_int", "all"]:
-            name = "STBS_ideal_a_" + covariates + addendum + "_K" + str(K)
-            scenarios[name] = {"checkpoint_name": name,
-                               "addendum": addendum,
-                               "num_topics": K,
-                               "pre_initialize_parameters": True,
-                               "exact_entropy": True, "geom_approx": False,
-                               "iota_coef_jointly": True,
-                               "theta": "Garte", "exp_verbosity": "None", "beta": "Gvrte",
-                               "eta": "NkprecF",
-                               "covariates": covariates,
-                               "ideal_dim": "a", "ideal_mean": "Nreg", "ideal_prec": "Nprec",
-                               "iota_dim": "l", "iota_mean": "None", "iota_prec": "NlprecG"}
 
 
 ### Creating slurm files and one file to trigger all the jobs.
@@ -105,7 +121,7 @@ with open(os.path.join(slurm_dir, 'run_all_STBS.slurm'), 'w') as all_file:
             file.write('cd /home/jvavra/STBS/\n')
             file.write('conda activate tf_TBIP\n')
             file.write('\n')
-            file.write('python '+os.path.join(analysis_dir, 'analysis_cluster.py')+flags+'\n')
+            file.write('python '+os.path.join(analysis_dir, 'estimate_STBS_cluster.py')+flags+'\n')
         # Add a line for running the batch script to the overall slurm job.
         all_file.write('sbatch --dependency=singleton ' + stbs_path)
         all_file.write('\n')

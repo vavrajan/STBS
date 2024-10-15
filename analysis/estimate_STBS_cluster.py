@@ -247,8 +247,6 @@ def main(argv):
         os.mkdir(txt_dir)
 
     checkpoint_dir = os.path.join(save_dir, 'checkpoints')
-    if not os.path.exists(checkpoint_dir):
-        os.mkdir(checkpoint_dir)
 
     if os.path.exists(os.path.join(fig_dir, 'orig_hist_counts.png')):
         # If the descriptive histograms of the document-term matrix exist
@@ -369,9 +367,12 @@ def main(argv):
 
     if os.path.exists(os.path.join(save_dir, 'model_state.csv')):
         model_state = pd.read_csv(os.path.join(save_dir, 'model_state.csv'), index_col=False)
+        # in case there are saved more epochs than the last saved checkpoint (can happen if save_every > 1)
+        model_state = model_state[model_state['epoch'] <= start_epoch]
     else:
         model_state = pd.DataFrame({'ELBO': [], 'entropy': [], 'log_prior': [], 'reconstruction': [],
                                     'epoch': [], 'batch': [], 'step': []})
+
 
     batches_per_epoch = len(dataset)
 
@@ -530,8 +531,9 @@ def main(argv):
         plt.savefig(os.path.join(fig_dir, 'batch_' + var + '.png'))
         plt.close()
         # Averages over epochs
-        avg = model_state[var].to_numpy()
-        avg = avg.reshape((FLAGS.num_epochs - start_epoch - 1, batches_per_epoch))
+        avg = sub_model_state[var].to_numpy()
+        avg = avg.reshape((np.round(len(avg) / batches_per_epoch), batches_per_epoch))
+        # avg = avg.reshape((FLAGS.num_epochs - start_epoch - 1, batches_per_epoch))
         avg = np.mean(avg, axis=1)
         plt.plot(range(start_epoch + 1, FLAGS.num_epochs), avg)
         plt.ylabel(var)
@@ -556,7 +558,7 @@ def main(argv):
     create_all_figures_specific_to_data(model, FLAGS.data_name, FLAGS.covariates, fig_dir, all_author_indices,
                                         author_map, author_info, vocabulary,
                                         nwords=10, ntopics=5,
-                                        selected_topics=[5, 9, 11, 13, 15])
+                                        selected_topics=[5, 9, 11, 13, 16, 24])
 
     ### Create LaTeX tables
     # create_latex_tables(model, tab_dir)

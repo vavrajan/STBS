@@ -86,8 +86,8 @@ def build_input_pipeline_hein_daily(data_dir,
     #                         delimiter="\n",
     #                         comments="<!-")
     shuffled_author_indices = tf.constant(shuffled_author_indices)
-    # author_info = pd.read_csv(os.path.join(data_dir, "author_detailed_info_with_religion" + addendum + ".csv"))
-    author_info = pd.read_csv(os.path.join(data_dir, "author_detailed_info" + addendum + ".csv"))
+    author_info = pd.read_csv(os.path.join(data_dir, "author_detailed_info_with_religion" + addendum + ".csv"))
+    #author_info = pd.read_csv(os.path.join(data_dir, "author_detailed_info" + addendum + ".csv"))
 
     return dataset, documents, shuffled_author_indices, vocabulary, author_map, author_info
 

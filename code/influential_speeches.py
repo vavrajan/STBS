@@ -28,14 +28,14 @@ def find_most_influential_speeches_hein_daily(model, data_name, data_dir, source
 
     """
     ### Load all the speeches
-    speeches = pd.read_csv(source_dir + 'orig/speeches_' + addendum + '.txt',
+    speeches = pd.read_csv(os.path.join(source_dir, 'orig', 'speeches_' + addendum + '.txt'),
                            encoding="ISO-8859-1",
                            sep="|", quoting=3,
                            on_bad_lines='warn')
-    description = pd.read_csv(source_dir + 'orig/descr_' + addendum + '.txt',
+    description = pd.read_csv(os.path.join(source_dir, 'orig', 'descr_' + addendum + '.txt'),
                               encoding="ISO-8859-1",
                               sep="|")
-    speaker_map = pd.read_csv(source_dir + 'orig/' + addendum + '_SpeakerMap.txt',
+    speaker_map = pd.read_csv(os.path.join(source_dir, 'orig', addendum + '_SpeakerMap.txt'),
                               encoding="ISO-8859-1",
                               sep="|")
     merged_df = speeches.merge(description,
@@ -98,7 +98,7 @@ def find_most_influential_speeches_hein_daily(model, data_name, data_dir, source
         # top.speech_id = top.speech_id.astype("category")
         # top.speech_id = top.speech_id.cat.set_categories(ids.numpy())
         # top = top.sort_values('speech_id')
-        with open(txt_dir + 'top' + str(nspeeches) + 'speeches_' + addendum + '_topic_' + str(k) + '.txt', 'w') as file:
+        with open(os.path.join(txt_dir, 'top' + str(nspeeches) + 'speeches_' + addendum + '_topic_' + str(k) + '.txt'), 'w') as file:
             file.write('----------------------------------------\n')
             file.write('The most influential speeches for topic ' + str(k) + '\n')
             file.write('----------------------------------------\n\n\n')
@@ -124,7 +124,7 @@ def find_most_influential_speeches_cze_senate(model, data_name, data_dir, source
         raise ValueError('Unrecognized choice for the selection of most influential speeches: ' + how_influential)
     for k in range(model.num_topics):
         docs = tf.math.top_k(influence[:, k], nspeeches).indices
-        with open(txt_dir + 'top' + str(nspeeches) + 'speeches_' + addendum + '_topic_' + str(k) + '.txt', 'w') as file:
+        with open(os.path.join(txt_dir, 'top' + str(nspeeches) + 'speeches_' + addendum + '_topic_' + str(k) + '.txt'), 'w') as file:
             file.write('----------------------------------------\n')
             file.write('The most influential speeches for topic ' + str(k) + '\n')
             file.write('----------------------------------------\n\n\n')
@@ -204,7 +204,7 @@ def find_most_influential_speeches_fomc(model, data_name, data_dir, source_dir, 
         print("Topic: " + str(k))
         ids = tf.gather(influence_ind[:, k], docs)
         top = speech_data.iloc[ids.numpy()]
-        with open(txt_dir + 'top' + str(nspeeches) + 'speeches_' + addendum + '_topic_' + str(k) + '.txt', 'w') as file:
+        with open(os.path.join(txt_dir, 'top' + str(nspeeches) + 'speeches_' + addendum + '_topic_' + str(k) + '.txt'), 'w') as file:
             file.write('----------------------------------------\n')
             file.write('The most influential speeches for topic ' + str(k) + '\n')
             file.write('----------------------------------------\n\n\n')
