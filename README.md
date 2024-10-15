@@ -1,6 +1,6 @@
 # Structural Text-Based Scaling Model
 Source code for the paper: 
-[Structural Text-Based Scaling Model by Jan Vávra, Bernd Prostmeier, Bettina Grün, and Paul Hofmarcher (2024)](web to the paper).
+[Structural Text-Based Scaling Model by Jan Vávra, Bernd Prostmeier, Bettina Grün, and Paul Hofmarcher (2024)](web to the paper or arXiv).
 
 ## Directories and main files overview:
 
@@ -23,7 +23,8 @@ these files are specific to the computing environment used and are included for 
 * `data` - contains data in separate folders
   * `hein-daily` - contains data from Hein-Daily (here only session 114)
     * `orig` - original `hein-daily` data for session 114
-      * `114_SpeakerMap.txt`, `byparty_2gram_114.txt`, `byspeaker_2gram_114.txt`, `descr_114.txt`, `speeches_114.txt`, `stopwords.txt`
+      * `stopwords.txt` - list of stopwords used to process the speeches
+      * `114_SpeakerMap.txt`, `byparty_2gram_114.txt`, `byspeaker_2gram_114.txt`, `descr_114.txt`, `speeches_114.txt` - data from Hein Daily (not here on GitHub)
       * `data_aging_congress.csv` - congress demographics data [Congress today is older than it’s ever been by Skelley G. (2023)](https://fivethirtyeight.com/features/aging-congress-boomers/)
       * `data_religion_114.csv` - religion data for session 114 only [from Pew Research Center](https://www.pewresearch.org/religion/2015/01/05/members-of-congress-religious-affiliations/)
     * `clean` - string '114' is an *addendum* that is added to the end of the file name to specify a different version of your dataset such as different session or differently pre-processed data
@@ -193,7 +194,7 @@ Then, if `num_top_speeches` > 0 then the most influential speeches are found usi
 `find_most_influential_speeches` function from `influential_speeches`. 
 For `hein-daily` data we decided to first select a batch (of `batch_size`) of documents
 with the highest posterior mean of thetas (`shp / rte`) for each topic separately. Then,
-`num_top_speeches` documents with the highest log-likelihood-ratio-like test stastistic are 
+`num_top_speeches` documents with the highest log-likelihood-ratio-like test statistic are 
 saved into `txts` subdirectory as the most influential speeches for the topic. 
 
 Some post-analysis has to be performed by external `.py` or `.R` scripts.
@@ -213,12 +214,15 @@ of ideological positions of speakers within the respective groups.
 The topics are then ordered (and plotted in this order) by the difference between these two party means. 
 
 Next, we also wish to compare the variability of ideological space between STBS model with
-fixed and with topic-specific idelogical positions. Script `analysis/compare_variability_of_ideal_term.py`
+fixed and with topic-specific ideological positions. Script `analysis/compare_variability_of_ideal_term.py`
 provides several aspects, in which these two could be topic-wise compared.
 In the end, we decided for the variability induced by both 
 ideological corrections eta and ideological positions, named with `eta_ideal_variability`. 
 It is computed by multiplying location estimates for eta and ideal and reducing this 3D tensor
 along author and word axis into variances for each topic. 
+A nice barplots for this comparison including labels for the topics is created by 
+`barplot_eta_ideal_variability.R`. 
+These labels were assigned after exploration of the wordclouds containing the most relevant terms.
 
 ### Regression summary plots using R
 
@@ -226,6 +230,6 @@ Base R plotting devices allow us to be more creative with regression summary plo
 Therefore, we create these plots (and regression summary tables) with `.R` scripts that can be found in `R` folder.
 Functions are tailored for `hein-daily` but with some changes it could be used for other datasets as well.
 We provide functions for both regression set-ups (additive and party-interaction) 
-that are useable regardless of topic-specificity of ideological positions.
+that are usable regardless of topic-specificity of ideological positions.
 First, we have written a function to plot the results vertically to create thin plots.
 In the end, its transposed version proved to be better for both paper and slides. 
