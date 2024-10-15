@@ -61,7 +61,7 @@ and set the minimal and maximal word-in-speech-appearance frequencies (0.001 and
 6. Eliminate bigrams spoken by less than 10 Senators.
 7. Recall `CountVectorizer` with the shortened vocabulary.
 8. Remove empty speeches without any bigram included (row sums are zero).
-9. Save sparse `counts.npz`, auxiliary indices and final vocabulary to `data/hein-daily/clean`.
+9. Save sparse `counts.npz`, auxiliary indices and final vocabulary to [data/hein-daily/clean](data/hein-daily/clean).
 
 ## Adding a new dataset
 
