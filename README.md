@@ -21,10 +21,10 @@ Source code for the paper:
 * `create_slurms` - `.py` files to create `.slurm` files for submitting jobs on computational cluster,
 these files are specific to the computing environment used and are included for documentation (and inspiration) purposes 
 * `data` - contains data in separate folders
-  * `hein-daily` - contains data from Hein-Daily (here only session 114)
+  * `hein-daily` - contains data from [Hein-Daily](https://data.stanford.edu/congress_text) (here only session 114)
     * `orig` - original `hein-daily` data for session 114
       * `stopwords.txt` - list of stopwords used to process the speeches
-      * `114_SpeakerMap.txt`, `byparty_2gram_114.txt`, `byspeaker_2gram_114.txt`, `descr_114.txt`, `speeches_114.txt` - data from Hein Daily (not here on GitHub)
+      * `114_SpeakerMap.txt`, `byparty_2gram_114.txt`, `byspeaker_2gram_114.txt`, `descr_114.txt`, `speeches_114.txt` - data from [Hein-Daily](https://data.stanford.edu/congress_text) (not here on GitHub)
       * `data_aging_congress.csv` - congress demographics data [Congress today is older than it’s ever been by Skelley G. (2023)](https://fivethirtyeight.com/features/aging-congress-boomers/)
       * `data_religion_114.csv` - religion data for session 114 only [from Pew Research Center](https://www.pewresearch.org/religion/2015/01/05/members-of-congress-religious-affiliations/)
     * `clean` - string '114' is an *addendum* that is added to the end of the file name to specify a different version of your dataset such as different session or differently pre-processed data
@@ -51,7 +51,7 @@ user needs to adjust these), properly structured
 
 We follow the steps of Keyon Vafa 
 [Text-Based Ideal Points (2020)](https://github.com/keyonvafa/tbip). 
-These steps are performed in `analysis/preprocess_speeches.py` in the following order for each session separately:
+These steps are performed in [preprocess_speeches](analysis/preprocess_speeches.py) in the following order for each session separately:
 1. Load and merge speeches with descriptions.
 2. Select only speeches by senators given in Senate.
 3. Remove senators who make less than 24 speeches.
