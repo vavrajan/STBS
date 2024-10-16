@@ -61,12 +61,18 @@ def find_most_influential_speeches_hein_daily(model, data_name, data_dir, source
         eta = model.get_Eqmean(model.eta_varfam, log=False)  # [K, V]
         ideal = model.get_Eqmean(model.ideal_varfam, log=False)  # [A, 1 or K]
         ideal_doc = tf.gather(ideal, model.all_author_indices, axis=0)  # [D, 1 or K]
-        sub_ideal = tf.transpose(tf.gather(tf.transpose(ideal_doc), ind, axis=1, batch_dims=1))  # [B, 1 or K]
+        if tf.shape(ideal_doc)[1] > 1:
+            sub_ideal = tf.transpose(tf.gather(tf.transpose(ideal_doc), ind, axis=1, batch_dims=1))  # [B, K]
+        else:
+            sub_ideal = tf.gather(tf.transpose(tf.gather(tf.transpose(ideal_doc), ind, axis=1)), 0, axis=2)  # [B, K]
 
         rates_all_null = sub_theta[:, :, tf.newaxis] * beta[tf.newaxis, :, :]  # [B, K, V]
         ideological_term = tf.math.exp(eta[tf.newaxis, :, :] * sub_ideal[:, :, tf.newaxis])  # [B, K, V]
         rates = rates_all_null * ideological_term  # [B, K, V]
-        rate_true = tf.reduce_sum(rates, axis=1)  # [B, V]
+        if tf.shape(ideal_doc)[1] > 1:
+            rate_true = tf.reduce_sum(rates, axis=1)[:, tf.newaxis, :]  # [B, 1, V]
+        else:
+            rate_true = rates # [B, K, V] - separately for each topic in case ideal is not topic-specific
         rate_dif = rates_all_null - rates  # [B, K, V]
 
         # Subset counts for each topic separately: sparse[D, V] --> dense[B, K, V]
@@ -169,20 +175,27 @@ def find_most_influential_speeches_fomc(model, data_name, data_dir, source_dir, 
     elif how_influential == 'theta_then_loglik_ratio_test':
         theta = model.get_Eqmean(model.theta_varfam)
         # transposition needed because tf.math.top_k finds maxima for the last dimension
-        val, ind = tf.math.top_k(tf.transpose(theta), batch_size)
-        sub_theta = tf.transpose(val)  # [B, V] transposition back
+        val, ind = tf.math.top_k(tf.transpose(theta), batch_size) # both are [K, B]
+        sub_theta = tf.transpose(val)  # [B, K] transposition back
 
         ### Second step - computation of log-likelihood ratio test statistic
         beta = model.get_Eqmean(model.beta_varfam, log=False)  # [K, V]
         eta = model.get_Eqmean(model.eta_varfam, log=False)  # [K, V]
         ideal = model.get_Eqmean(model.ideal_varfam, log=False)  # [A, 1 or K]
         ideal_doc = tf.gather(ideal, model.all_author_indices, axis=0)  # [D, 1 or K]
-        sub_ideal = tf.transpose(tf.gather(tf.transpose(ideal_doc), ind, axis=1, batch_dims=1))  # [B, 1 or K]
+        if tf.shape(ideal_doc)[1] > 1:
+            sub_ideal = tf.transpose(tf.gather(tf.transpose(ideal_doc), ind, axis=1, batch_dims=1))  # [B, K]
+        else:
+            sub_ideal = tf.gather(tf.transpose(tf.gather(tf.transpose(ideal_doc), ind, axis=1)), 0, axis=2)  # [B, K]
+
 
         rates_all_null = sub_theta[:, :, tf.newaxis] * beta[tf.newaxis, :, :]  # [B, K, V]
         ideological_term = tf.math.exp(eta[tf.newaxis, :, :] * sub_ideal[:, :, tf.newaxis])  # [B, K, V]
         rates = rates_all_null * ideological_term  # [B, K, V]
-        rate_true = tf.reduce_sum(rates, axis=1)  # [B, V]
+        if tf.shape(ideal_doc)[1] > 1:
+            rate_true = tf.reduce_sum(rates, axis=1)[:, tf.newaxis, :]  # [B, 1, V]
+        else:
+            rate_true = rates # [B, K, V] - separately for each topic in case ideal is not topic-specific
         rate_dif = rates_all_null - rates  # [B, K, V]
 
         # Subset counts for each topic separately: sparse[D, V] --> dense[B, K, V]
@@ -192,8 +205,7 @@ def find_most_influential_speeches_fomc(model, data_name, data_dir, source_dir, 
         sub_counts = tf.gather(counts.todense(), tf.transpose(ind), axis=0)
 
         # Difference in log_probabilities of Poisson counts (true - null)
-        loglik_dif = sub_counts * (tf.math.log(rate_true[:, tf.newaxis, :]) - tf.math.log(
-            rate_true[:, tf.newaxis, :] + rate_dif)) + rate_dif  # [D, K, V]
+        loglik_dif = sub_counts * (tf.math.log(rate_true) - tf.math.log(rate_true + rate_dif)) + rate_dif  # [D, K, V]
         influence = tf.reduce_sum(loglik_dif, axis=2)  # [D, K]
         influence_ind = tf.transpose(tf.gather(speech_id_indices, ind))
     else:

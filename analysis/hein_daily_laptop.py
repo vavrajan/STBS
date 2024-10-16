@@ -15,15 +15,15 @@ import matplotlib.pyplot as plt
 
 
 # Import local modules
-from STBS.code.var_and_prior_family import VariationalFamily, PriorFamily
-from STBS.code.train_step import train_step
-from STBS.code.utils import print_topics, print_ideal_points, log_static_features
-from STBS.code.plotting_functions import create_all_general_descriptive_figures, create_all_figures_specific_to_data
-from STBS.code.input_pipeline import build_input_pipeline
-from STBS.code.stbs import STBS
-from STBS.code.create_X import create_X
-
-from sklearn.feature_extraction.text import CountVectorizer
+import sys
+sys.path.append(os.path.join(os.getcwd(), 'code'))
+from var_and_prior_family import VariationalFamily, PriorFamily
+from train_step import train_step
+from utils import print_topics, print_ideal_points, log_static_features
+from plotting_functions import create_all_general_descriptive_figures, create_all_figures_specific_to_data
+from input_pipeline import build_input_pipeline
+from stbs import STBS
+from create_X import create_X
 
 
 prior_hyperparameter = {
@@ -86,14 +86,14 @@ prior_choice = {
 seed = 314159
 data_name = "hein-daily"
 addendum = "114"
-addendum = '97'
 checkpoint_name = "first_use"
 load_checkpoint = False
-batch_size = 64
+batch_size = 512
 counts_transformation = "nothing"
 learning_rate = 0.01
-num_topics = 30
+num_topics = 25
 num_samples = 1
+RobMon_exponent = -0.7
 exact_entropy = True
 geom_approx = False
 aux_prob_sparse = False
@@ -101,45 +101,20 @@ num_epochs = 2
 save_every = 1
 covariates = "party"
 
-# data_name = 'fomc'
-# addendum = ''
-# num_topics = 2
-# covariates = 'gender+title+year+flength+flaughter'
-# covariates = 'None'
-# prior_choice['ideal_mean'] = 'Nfix'
-# prior_choice['ideal_prec'] = 'Nfix'
-# prior_choice['iota_dim'] = 'l'
-# prior_choice['iota_prec'] = 'Nfix'
-# prior_choice['iota_mean'] = 'None'
-
-
 tf.random.set_seed(seed)
 random_state = np.random.RandomState(seed)
-#project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-#source_dir = os.path.join(project_dir, "TBIP_colab\\data\\{}".format(data_name))
-#project_dir = 'home/jvavra/TBIP/'
-### My laptop
-project_dir = 'C:\\Users\\jvavra\\OneDrive - WU Wien\\Documents\\TBIP_colab'
-source_dir = os.path.join(project_dir, "data\\{}".format(data_name))
-### Cluster
-# project_dir = ''
-# project_dir = os.getcwd()
-# source_dir = project_dir+'/data/'+data_name+'/'
 
+### Directories
+project_dir = os.getcwd()
+source_dir = os.path.join(project_dir, "data", data_name)
 # As described in the docstring, the data directory must have the following
 # files: counts.npz, author_indices.npy, vocabulary.txt, author_map.txt.
-### My laptop
 data_dir = os.path.join(source_dir, "clean")
-save_dir = os.path.join(source_dir, "fits\\{}".format(checkpoint_name))
-fig_dir = os.path.join(source_dir, "figs\\{}".format(checkpoint_name))
-### Cluster
-# data_dir = source_dir+'clean/'
-# save_dir = source_dir+'fits/'+checkpoint_name+'/'
-# fig_dir = source_dir+'figs/'+checkpoint_name+'/'
-#
-# if not(os.path.exists(fig_dir)):
-#     # The fig path does not exist --> create it
-#     os.mkdir(fig_dir)
+save_dir = os.path.join(source_dir, "fits", checkpoint_name)
+fig_dir = os.path.join(source_dir, "figs", checkpoint_name)
+
+if not(os.path.exists(fig_dir)):
+    os.mkdir(fig_dir)
 if os.path.exists(fig_dir + 'orig_log_hist_counts.png'):
     use_fig_dir = None
 else:
@@ -152,10 +127,7 @@ num_documents = len(permutation)
 num_words = len(vocabulary)
 num_authors = author_info.shape[0]
 
-# Import infodata about senators.
-# author_info = np.load(os.path.join(data_dir, "author_info" + FLAGS.addendum + ".npy"))
-# author_info = pd.read_csv(os.path.join(data_dir, "author_info" + addendum + ".csv"))
-# author_info = pd.read_csv(os.path.join(data_dir, "author_detailed_info" + addendum + ".csv"))
+### Create the regression matrix X and initial values for ideological positions
 if prior_choice['ideal_dim'] == 'ak':
     ideal_topic_dim = num_topics
 elif prior_choice['ideal_dim'] == 'a':
@@ -182,6 +154,7 @@ model = STBS(num_documents,
              prior_hyperparameter=prior_hyperparameter,
              prior_choice=prior_choice,
              batch_size=batch_size,
+             RobMon_exponent=RobMon_exponent,
              exact_entropy=exact_entropy,
              geom_approx=geom_approx,
              aux_prob_sparse=aux_prob_sparse,
@@ -317,11 +290,11 @@ for epoch in range(start_epoch + 1, num_epochs):
         df = pd.DataFrame(model.theta_varfam.rate.numpy())
         df.to_csv(os.path.join(param_save_dir, "theta_rte.csv"))
 
-model_state=pd.DataFrame(model_state)
-model_state.to_csv('model_state.csv')
+model_state = pd.DataFrame(model_state)
+model_state.to_csv(os.path.join(save_dir, 'model_state.csv'))
 
-epoch_data=pd.DataFrame(epoch_data)
-epoch_data.to_csv('epoch_data.csv')
+epoch_data = pd.DataFrame(epoch_data)
+epoch_data.to_csv(os.path.join(save_dir, 'epoch_data.csv'))
 
 for var in ['ELBO', 'entropy', 'log_prior', 'reconstruction']:
     # All steps
@@ -353,8 +326,8 @@ for var in ['ELBO_MC', 'entropy_MC', 'log_prior_MC', 'reconstruction_MC', 'recon
 
 ### Other figures
 create_all_general_descriptive_figures(model, fig_dir, author_map, vocabulary,
-                                           nwords_eta_beta_vs_ideal=20, nwords=10, ntopics=5,
-                                           selected_topics=[5, 9, 11, 13, 15])
+                                       nwords_eta_beta_vs_ideal=20, nwords=20, ntopics=5)
 create_all_figures_specific_to_data(model, data_name, covariates, fig_dir, all_author_indices,
                                     author_map, author_info, vocabulary,
-                                    nwords=10, ntopics=5)
+                                    nwords=10, ntopics=5,
+                                    selected_topics=[5, 9, 11, 13, 16, 24])

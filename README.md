@@ -86,25 +86,6 @@ these files are specific to the computing environment used and are included for 
 * [slurm](slurm) - directory for `.slurm` files that submit jobs on cluster (very specific to the gpu cluster used for computations, 
 user needs to adjust these), properly structured
 
-## Pre-processing speech data
-
-We follow the steps of Keyon Vafa 
-[Text-Based Ideal Points (2020)](https://github.com/keyonvafa/tbip). 
-These steps are performed in [preprocess_speeches](analysis/preprocess_speeches.py) in the following order for each session separately:
-1. Load and merge speeches with descriptions.
-2. Select only speeches by senators given in Senate.
-3. Remove senators who make less than 24 speeches.
-4. Create mapping between names and IDs and create a data frame of author-specific covariates.
-5. Use [CountVectorizer](https://scikit-learn.org/1.5/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html) 
-from [scikit-learn](https://scikit-learn.org/1.5/index.html) 
-library to eliminate stopwords, select n-gram range (here bigrams only)
-and set the minimal and maximal word-in-speech-appearance frequencies (0.001 and 0.3)
-6. Eliminate bigrams spoken by less than 10 Senators.
-7. Recall [CountVectorizer](https://scikit-learn.org/1.5/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html) 
-with the shortened vocabulary.
-8. Remove empty speeches without any bigram included (row sums are zero).
-9. Save sparse `counts.npz`, auxiliary indices and final vocabulary to [data/hein-daily/clean](data/hein-daily/clean).
-
 ## Adding a new dataset
 
 First, create a new subdirectory in [data](data) named by `your_data_name` and add all the necessary folders. 
@@ -124,11 +105,30 @@ define your own way how to find the most influential speeches
 then you need to write your own function and add it to the corresponding wrapper.
 You can find some examples of these tweaks already implemented for other than `hein-daily` dataset.
 
+## Pre-processing speech data
+
+We follow the steps of Keyon Vafa 
+[Text-Based Ideal Points (2020)](https://github.com/keyonvafa/tbip). 
+These steps are performed in [preprocess_speeches](analysis/preprocess_speeches.py) in the following order for each session separately:
+1. Load and merge speeches with descriptions.
+2. Select only speeches by senators given in Senate.
+3. Remove senators who make less than 24 speeches.
+4. Create mapping between names and IDs and create a data frame of author-specific covariates.
+5. Use [CountVectorizer](https://scikit-learn.org/1.5/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html) 
+from [scikit-learn](https://scikit-learn.org/1.5/index.html) 
+library to eliminate stopwords, select n-gram range (here bigrams only)
+and set the minimal and maximal word-in-speech-appearance frequencies (0.001 and 0.3)
+6. Eliminate bigrams spoken by less than 10 Senators.
+7. Recall [CountVectorizer](https://scikit-learn.org/1.5/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html) 
+with the shortened vocabulary.
+8. Remove empty speeches without any bigram included (row sums are zero).
+9. Save sparse `counts.npz`, auxiliary indices and final vocabulary to [data/hein-daily/clean](data/hein-daily/clean).
+
 ## Model definition
 
-The implementation is very flexible and allow for many models to be fitted. 
-With this source code you can fit the original TBIP model without any regression behind 
-fixed ideological positions
+The implementation is very flexible and allows for many models to be fitted. 
+With this source code you can fit the original TBIP model with Gamma variational families 
+without any regression behind fixed ideological positions
 as well as
 our STBS model with topic-specific ideological positions and as elaborate prior distribution 
 as you wish. The paper presents the most complex setting, so with this implementation you can only simplify it, 

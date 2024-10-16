@@ -532,7 +532,7 @@ def main(argv):
         plt.close()
         # Averages over epochs
         avg = sub_model_state[var].to_numpy()
-        avg = avg.reshape((np.round(len(avg) / batches_per_epoch), batches_per_epoch))
+        avg = avg.reshape((-1, batches_per_epoch))
         # avg = avg.reshape((FLAGS.num_epochs - start_epoch - 1, batches_per_epoch))
         avg = np.mean(avg, axis=1)
         plt.plot(range(start_epoch + 1, FLAGS.num_epochs), avg)
