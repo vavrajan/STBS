@@ -3,6 +3,7 @@ import time
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
+import tensorflow.math as tfm
 import scipy.sparse as sparse
 import warnings
 
@@ -1921,11 +1922,12 @@ class STBS(tf.keras.Model):
 
         return ELBO_MC, log_prior_MC, entropy_MC, reconstruction_MC, reconstruction_at_Eqmean_sum, effective_number_of_parameters, VAIC, VBIC, seed
 
-    def call(self, inputs, seed, nsamples):
+    def call(self, inputs, outputs, seed, nsamples):
         """Approximate terms in the ELBO with Monte-Carlo samples.
 
         Args:
             inputs: A dictionary of input tensors.
+            outputs: Sparse batched document-word counts.
             seed: A seed for the random number generator.
             nsamples: A number of samples to approximate variational means with by Monte Carlo.
 
@@ -1938,11 +1940,15 @@ class STBS(tf.keras.Model):
         empty_samples = self.get_empty_samples()
         samples, seed = self.get_samples_and_update_prior_customized(empty_samples, seed=seed, varfam=True,
                                                                      nsamples=nsamples)
+        rate = self.get_rates(samples, inputs['document_indices'], inputs['author_indices'])
+        # shape [nsamples, batch_size, num_words]
+        count_dist = tfp.distributions.Poisson(rate=rate)
+        count_log_likelihood = tfm.reduce_sum(count_dist.log_prob(tf.sparse.to_dense(outputs)), axis=[1, 2])
+
         log_prior = self.get_log_prior(samples)
         entropy = self.get_entropy(samples, exact=self.exact_entropy)
-        rate = self.get_rates(samples,
-                              document_indices=inputs['document_indices'],
-                              author_indices=inputs['author_indices'])
-        negative_log_prior = -tf.reduce_mean(log_prior)
-        negative_entropy = -tf.reduce_mean(entropy)
-        return rate, negative_log_prior, negative_entropy, seed
+
+        reconstruction_loss = -tfm.reduce_mean(count_log_likelihood)
+        log_prior_loss = -tfm.reduce_mean(log_prior)
+        entropy_loss = -tfm.reduce_mean(entropy)
+        return reconstruction_loss, log_prior_loss, entropy_loss, seed
