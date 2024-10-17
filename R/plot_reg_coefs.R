@@ -42,7 +42,7 @@ author_info$religion <- author_info$RELIGION
 author_info <- as.matrix(author_info)
 
 ### Function to obtain p-values
-VIpvalue <- function(C, mu, Sigma, mu0 = matrix(rep(0,length(mu)), nrow=1)){
+CCPvalue <- function(C, mu, Sigma, mu0 = matrix(rep(0,length(mu)), nrow=1)){
   # C[Z,L] - matrix declaring linear combinations
   # mu[1,L] - vector of estimated means
   # Sigma[L,L] - variance matrix
@@ -51,11 +51,11 @@ VIpvalue <- function(C, mu, Sigma, mu0 = matrix(rep(0,length(mu)), nrow=1)){
   Cdif <- C %*% t(mu - mu0)
   x <- solve(CSigmaC, Cdif)
   chi <- as.numeric(t(Cdif) %*% x)
-  pval <- pchisq(chi, df=dim(C)[1], lower.tail = F)
-  return(pval)
+  CCPval <- pchisq(chi, df=dim(C)[1], lower.tail = F)
+  return(CCPval)
 }
 
-VIpvalue(matrix(c(1,0,1,1), nrow=2, byrow=T), matrix(rep(0.5,2), nrow=1), diag(2))
+CCPvalue(matrix(c(1,0,1,1), nrow=2, byrow=T), matrix(rep(0.5,2), nrow=1), diag(2))
 
 Pvalbreaks <- c(0, 0.001, 0.01, 0.05, 0.1, 1)
 signif_codes <- c("***", "**", "*", ".", "")
@@ -133,12 +133,12 @@ create_lin_komb <- function(category = "party", L=19){
 }
 # try it 
 Creg <- create_lin_komb(category = "region")
-VIpvalue(Creg, iota_loc, iota_var)
-VIpvalue(matrix(Creg[1,], nrow=1), iota_loc, iota_var)
-VIpvalue(matrix(Creg[2,], nrow=1), iota_loc, iota_var)
-VIpvalue(matrix(Creg[3,], nrow=1), iota_loc, iota_var)
-VIpvalue(matrix(Creg[4,], nrow=1), iota_loc, iota_var)
-VIpvalue(Creg, iota_loc, iota_var)
+CCPvalue(Creg, iota_loc, iota_var)
+CCPvalue(matrix(Creg[1,], nrow=1), iota_loc, iota_var)
+CCPvalue(matrix(Creg[2,], nrow=1), iota_loc, iota_var)
+CCPvalue(matrix(Creg[3,], nrow=1), iota_loc, iota_var)
+CCPvalue(matrix(Creg[4,], nrow=1), iota_loc, iota_var)
+CCPvalue(Creg, iota_loc, iota_var)
 specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
 specify_decimal(0.007856, 3)
 formatPval <- function(x, k){
@@ -217,10 +217,10 @@ plot_regression_results <- function(iota_loc, iota_var, ideal_loc,
     abline(h=-2*icat+2, col="grey", lty=2)
     catC = create_lin_komb(category=cat)
     
-    pvalC = VIpvalue(catC, mu=iota_loc, Sigma=iota_var)
-    pvalC_round = formatPval(pvalC, 3)
-    pvalC_signif = cut(pvalC, breaks=Pvalbreaks, labels = signif_codes)
-    mtext(paste0("All: ", pvalC_round, " (", pvalC_signif, ")"), 
+    CCPvalC = CCPvalue(catC, mu=iota_loc, Sigma=iota_var)
+    CCPvalC_round = formatPval(CCPvalC, 3)
+    CCPvalC_signif = cut(CCPvalC, breaks=Pvalbreaks, labels = signif_codes)
+    mtext(paste0("All: ", CCPvalC_round, " (", CCPvalC_signif, ")"), 
           side=2, at=-2*icat+0.7, las=2, line=0.3)
     
     # rectangle measures
@@ -231,17 +231,17 @@ plot_regression_results <- function(iota_loc, iota_var, ideal_loc,
     xR = c(0.01+ 0:(Z-1)*space + cumsum(tab_join*len+0.01))
     xmid = (xL+xR)/2
     
-    pval = c(1,sapply(1:dim(catC)[1], function(z){VIpvalue(matrix(catC[z,], nrow=1),
+    CCPval = c(1,sapply(1:dim(catC)[1], function(z){CCPvalue(matrix(catC[z,], nrow=1),
                                                            mu=iota_loc, Sigma=iota_var)}))
     eff = c(0, catC %*% t(iota_loc))
-    pval_signif = as.character(cut(pval, breaks=Pvalbreaks, labels = signif_codes))
+    CCPval_signif = as.character(cut(CCPval, breaks=Pvalbreaks, labels = signif_codes))
     
     rect(xleft=xL,
          xright=xR,
          ybottom=-2*icat+0.9, ytop=-2*icat+1.9,
          col=as.character(cut(eff, breaks=effectgrid, labels=effectcol))
     )
-    text(xmid, -2*icat+1.4, pval_signif)
+    text(xmid, -2*icat+1.4, CCPval_signif)
     if(Z <= 3){
       label_add = 0.5
     }else{
@@ -344,10 +344,10 @@ plot_regression_results_transposed <- function(iota_loc, iota_var, ideal_loc,
     abline(v=2*(icat-1), col="grey", lty=2)
     catC = create_lin_komb(category=cat)
     
-    pvalC = VIpvalue(catC, mu=iota_loc, Sigma=iota_var)
-    pvalC_round = formatPval(pvalC, 3)
-    pvalC_signif = cut(pvalC, breaks=Pvalbreaks, labels = signif_codes)
-    mtext(paste0("All: ", pvalC_round, " (", pvalC_signif, ")"), 
+    CCPvalC = CCPvalue(catC, mu=iota_loc, Sigma=iota_var)
+    CCPvalC_round = formatPval(CCPvalC, 3)
+    CCPvalC_signif = cut(CCPvalC, breaks=Pvalbreaks, labels = signif_codes)
+    mtext(paste0("All: ", CCPvalC_round, " (", CCPvalC_signif, ")"), 
           side=1, at=2*(icat-1)+1.0, line=1.3)
     
     # rectangle measures
@@ -358,10 +358,10 @@ plot_regression_results_transposed <- function(iota_loc, iota_var, ideal_loc,
     xR = c(0.01+ 0:(Z-1)*space + cumsum(tab_join*len+0.01))
     xmid = (xL+xR)/2
     
-    pval = c(1,sapply(1:dim(catC)[1], function(z){VIpvalue(matrix(catC[z,], nrow=1),
+    CCPval = c(1,sapply(1:dim(catC)[1], function(z){CCPvalue(matrix(catC[z,], nrow=1),
                                                            mu=iota_loc, Sigma=iota_var)}))
     eff = c(0, catC %*% t(iota_loc))
-    pval_signif = as.character(cut(pval, breaks=Pvalbreaks, labels = signif_codes))
+    CCPval_signif = as.character(cut(CCPval, breaks=Pvalbreaks, labels = signif_codes))
     
     rect(ybottom=xL,
          ytop=xR,
@@ -369,7 +369,7 @@ plot_regression_results_transposed <- function(iota_loc, iota_var, ideal_loc,
          xright=2*(icat-1)+0.65,
          col=as.character(cut(eff, breaks=effectgrid, labels=effectcol))
     )
-    text(2*(icat-1)+0.35, xmid, pval_signif)
+    text(2*(icat-1)+0.35, xmid, CCPval_signif)
     text(2*(icat-1)+0.6, xmid, pos=4, 
          paste0(nicelabels[[cat]], " (", tab_join, ")"),
          cex = ifelse(Z>5,fontsize2,fontsize1))

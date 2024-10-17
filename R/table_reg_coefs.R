@@ -10,6 +10,7 @@ tab_dir <- paste0(data_dir, "tabs/")
 ideal_dim <- "a"
 covariates <- "all_no_int"
 K <- 25
+joint_varfam <- TRUE
 addendum <- 114
 
 name <- paste0("STBS_ideal_",ideal_dim,"_",covariates,addendum,"_K",K)
@@ -148,15 +149,6 @@ create_lin_komb <- function(party = "D", category = "party", L=51){
   }
   return(C)
 }
-# try it 
-CD <- create_lin_komb(party = "D", category = "region")
-CR <- create_lin_komb(party = "R", category = "region")
-VIpvalue(CD, iota_loc, iota_var)
-VIpvalue(matrix(CD[1,], nrow=1), iota_loc, iota_var)
-VIpvalue(matrix(CD[2,], nrow=1), iota_loc, iota_var)
-VIpvalue(matrix(CD[3,], nrow=1), iota_loc, iota_var)
-VIpvalue(matrix(CD[4,], nrow=1), iota_loc, iota_var)
-VIpvalue(CR, iota_loc, iota_var)
 specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
 specify_decimal(0.007856, 3)
 
