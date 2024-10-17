@@ -25,7 +25,7 @@ def train_step(model, inputs, outputs, optim, seed, step=None):
     model.perform_cavi_updates(inputs, outputs, step)
     # Approximate the ELBO and tape the gradients.
     with tf.GradientTape() as tape:
-        reconstruction_loss_batch, log_prior_loss, entropy_loss, seed = model(inputs, seed, model.num_samples)
+        reconstruction_loss_batch, log_prior_loss, entropy_loss, seed = model(inputs, outputs, seed, model.num_samples)
         # reconstruction is only for the current batch --> rescale by num_documents / batch_size
         reconstruction_loss = reconstruction_loss_batch * model.minibatch_scaling
         total_loss = reconstruction_loss + log_prior_loss + entropy_loss
