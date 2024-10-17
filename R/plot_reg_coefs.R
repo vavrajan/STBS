@@ -11,11 +11,15 @@ ideal_dim <- "a"
 covariates <- "all_no_int"
 K <- 25
 addendum <- 114
+joint_varfam <- TRUE
 
 name <- paste0("STBS_ideal_",ideal_dim,"_",covariates,addendum,"_K",K)
 
 param_dir <- paste0(save_dir, name, "/params/")
 fig_dir <- paste0(fig_dir, name, "/")
+if(!dir.exists(fig_dir)){
+  dir.create(fig_dir)
+}
 
 
 ### Loading the data
@@ -391,61 +395,65 @@ dev.off()
 
 
 
-# ### Application to topic-specific regressions
-# fig_dir <- paste0(data_dir, "figs/")
-# ideal_dim <- "ak"
-# covariates <- "all_no_int"
-# addendum <- 114
-# K <- 25
-# name <- paste0("STBS_ideal_",ideal_dim,"_",covariates,addendum,"_K",K)
-# param_dir <- paste0(save_dir, name, "/params/")
-# fig_dir <- paste0(fig_dir, name, "/")
-# 
-# # Loading the data
-# iota_loc <- as.matrix(read_csv(paste0(param_dir, "iota_loc.csv")))
-# if(joint_varfam){
-#   iota_scale_tril <- as.matrix(read_csv(paste0(param_dir, "iota_scale_tril.csv")))
-#   iota_var <- iota_scale_tril %*% t(iota_scale_tril)
-# }else{
-#   iota_scale <- as.matrix(read_csv(paste0(param_dir, "iota_scale.csv")))
-#   iota_var <- diag(c(iota_scale)^2)
-# }
-# ideal_loc <- as.matrix(read_csv(paste0(param_dir, "ideal_loc.csv")))
-# ideal_scl <- as.matrix(read_csv(paste0(param_dir, "ideal_scl.csv")))
-# L <- dim(iota_loc)[2]
-# 
-# # Plots
-# for(k in 1:K){
-#   cairo_pdf(paste0(fig_dir, "covariate_effects_k_", k-1, ".pdf"),
-#             width = 7, height = 7)
-#   {
-#     plot_regression_results(matrix(iota_loc[k,], nrow = 1),
-#                             iota_var,
-#                             matrix(ideal_loc[,k], ncol = 1),
-#                             save = "pdf")
-#   }
-#   dev.off()
-#   
-#   cairo_pdf(paste0(fig_dir, "covariate_effects_transposed_k_", k-1, ".pdf"),
-#             width = 11, height = 5)
-#   {
-#     plot_regression_results_transposed(matrix(iota_loc[k,], nrow = 1),
-#                                        iota_var,
-#                                        matrix(ideal_loc[,k], ncol = 1),
-#                                        save = "pdf")
-#   }
-#   dev.off()
-#   
-#   png(paste0(fig_dir, "covariate_effects_k_", k-1, ".png"),
-#       width = 700, height = 700)
-#   {
-#     plot_regression_results(matrix(iota_loc[k,], nrow = 1), 
-#                             iota_var, 
-#                             matrix(ideal_loc[,k], ncol = 1),
-#                             save = "png")
-#   }
-#   dev.off()
-# }
-# 
-# 
-# 
+### Application to topic-specific regressions
+fig_dir <- paste0(data_dir, "figs/")
+ideal_dim <- "ak"
+covariates <- "all_no_int"
+addendum <- 114
+joint_varfam <- TRUE
+K <- 25
+name <- paste0("STBS_ideal_",ideal_dim,"_",covariates,addendum,"_K",K)
+param_dir <- paste0(save_dir, name, "/params/")
+fig_dir <- paste0(fig_dir, name, "/")
+if(!dir.exists(fig_dir)){
+  dir.create(fig_dir)
+}
+
+# Loading the data
+iota_loc <- as.matrix(read_csv(paste0(param_dir, "iota_loc.csv")))
+if(joint_varfam){
+  iota_scale_tril <- as.matrix(read_csv(paste0(param_dir, "iota_scale_tril.csv")))
+  iota_var <- iota_scale_tril %*% t(iota_scale_tril)
+}else{
+  iota_scale <- as.matrix(read_csv(paste0(param_dir, "iota_scale.csv")))
+  iota_var <- diag(c(iota_scale)^2)
+}
+ideal_loc <- as.matrix(read_csv(paste0(param_dir, "ideal_loc.csv")))
+ideal_scl <- as.matrix(read_csv(paste0(param_dir, "ideal_scl.csv")))
+L <- dim(iota_loc)[2]
+
+# Plots
+for(k in 1:K){
+  cairo_pdf(paste0(fig_dir, "covariate_effects_k_", k-1, ".pdf"),
+            width = 7, height = 7)
+  {
+    plot_regression_results(matrix(iota_loc[k,], nrow = 1),
+                            iota_var,
+                            matrix(ideal_loc[,k], ncol = 1),
+                            save = "pdf")
+  }
+  dev.off()
+
+  cairo_pdf(paste0(fig_dir, "covariate_effects_transposed_k_", k-1, ".pdf"),
+            width = 11, height = 5)
+  {
+    plot_regression_results_transposed(matrix(iota_loc[k,], nrow = 1),
+                                       iota_var,
+                                       matrix(ideal_loc[,k], ncol = 1),
+                                       save = "pdf")
+  }
+  dev.off()
+
+  png(paste0(fig_dir, "covariate_effects_k_", k-1, ".png"),
+      width = 700, height = 700)
+  {
+    plot_regression_results(matrix(iota_loc[k,], nrow = 1),
+                            iota_var,
+                            matrix(ideal_loc[,k], ncol = 1),
+                            save = "png")
+  }
+  dev.off()
+}
+
+
+

@@ -8,30 +8,33 @@ save_dir <- paste0(data_dir, "fits/")
 clean_dir <- paste0(data_dir, "clean/")
 fig_dir <- paste0(data_dir, "figs/")
 
-### ... here we do not have a combination of ideal_dim = "a" and covariates = "all"
-# ideal_dim <- "a"
-# covariates <- "all"
-# K <- 25
-# addendum <- 114
-# 
-# name <- paste0("STBS_ideal_",ideal_dim,"_",covariates,addendum,"_K",K)
-# 
-# param_dir <- paste0(save_dir, name, "/params/")
-# fig_dir <- paste0(fig_dir, name, "/")
+ideal_dim <- "a"
+covariates <- "all"
+ideal_varfam <- TRUE
+K <- 25
+addendum <- 114
 
-# ### Loading the data
-# library(readr)
-# iota_loc <- as.matrix(read_csv(paste0(param_dir, "iota_loc.csv")))
-# if(joint_varfam){
-#   iota_scale_tril <- as.matrix(read_csv(paste0(param_dir, "iota_scale_tril.csv")))
-#   iota_var <- iota_scale_tril %*% t(iota_scale_tril)
-# }else{
-#   iota_scale <- as.matrix(read_csv(paste0(param_dir, "iota_scale.csv")))
-#   iota_var <- diag(c(iota_scale)^2)
-# }
-# ideal_loc <- as.matrix(read_csv(paste0(param_dir, "ideal_loc.csv")))
-# ideal_scl <- as.matrix(read_csv(paste0(param_dir, "ideal_scl.csv")))
-# L <- dim(iota_loc)[2]
+name <- paste0("STBS_ideal_",ideal_dim,"_",covariates,addendum,"_K",K)
+
+param_dir <- paste0(save_dir, name, "/params/")
+fig_dir <- paste0(fig_dir, name, "/")
+if(!dir.exists(fig_dir)){
+  dir.create(fig_dir)
+}
+
+### Loading the data
+library(readr)
+iota_loc <- as.matrix(read_csv(paste0(param_dir, "iota_loc.csv")))
+if(joint_varfam){
+  iota_scale_tril <- as.matrix(read_csv(paste0(param_dir, "iota_scale_tril.csv")))
+  iota_var <- iota_scale_tril %*% t(iota_scale_tril)
+}else{
+  iota_scale <- as.matrix(read_csv(paste0(param_dir, "iota_scale.csv")))
+  iota_var <- diag(c(iota_scale)^2)
+}
+ideal_loc <- as.matrix(read_csv(paste0(param_dir, "ideal_loc.csv")))
+ideal_scl <- as.matrix(read_csv(paste0(param_dir, "ideal_scl.csv")))
+L <- dim(iota_loc)[2]
 
 # author info data
 author_info <- read_csv(paste0(clean_dir, "author_detailed_info_with_religion114.csv"))
@@ -139,14 +142,14 @@ create_lin_komb <- function(party = "D", category = "party", L=51){
   return(C)
 }
 # # try it 
-# CD <- create_lin_komb(party = "D", category = "region")
-# CR <- create_lin_komb(party = "R", category = "region")
-# VIpvalue(CD, iota_loc, iota_var)
-# VIpvalue(matrix(CD[1,], nrow=1), iota_loc, iota_var)
-# VIpvalue(matrix(CD[2,], nrow=1), iota_loc, iota_var)
-# VIpvalue(matrix(CD[3,], nrow=1), iota_loc, iota_var)
-# VIpvalue(matrix(CD[4,], nrow=1), iota_loc, iota_var)
-# VIpvalue(CR, iota_loc, iota_var)
+CD <- create_lin_komb(party = "D", category = "region")
+CR <- create_lin_komb(party = "R", category = "region")
+VIpvalue(CD, iota_loc, iota_var)
+VIpvalue(matrix(CD[1,], nrow=1), iota_loc, iota_var)
+VIpvalue(matrix(CD[2,], nrow=1), iota_loc, iota_var)
+VIpvalue(matrix(CD[3,], nrow=1), iota_loc, iota_var)
+VIpvalue(matrix(CD[4,], nrow=1), iota_loc, iota_var)
+VIpvalue(CR, iota_loc, iota_var)
 specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
 specify_decimal(0.007856, 3)
 formatPval <- function(x, k){
@@ -481,26 +484,26 @@ plot_regression_results_transposed <- function(iota_loc, iota_var, ideal_loc,
 }
 
 
-# cairo_pdf(paste0(fig_dir, "party_effects_interactions.pdf"),
-#           width = 8, height = 7)
-# {
-#   plot_regression_results(iota_loc, iota_var, ideal_loc, save="pdf")
-# }
-# dev.off()
-# 
-# png(paste0(fig_dir, "party_effects_interactions.png"),
-#     width = 800, height = 700)
-# {
-#   plot_regression_results(iota_loc, iota_var, ideal_loc, save="png")
-# }
-# dev.off()
-# 
-# cairo_pdf(paste0(fig_dir, "party_effects_interactions_transposed.pdf"),
-#           width = 8, height = 7)
-# {
-#   plot_regression_results_transposed(iota_loc, iota_var, ideal_loc, save="pdf")
-# }
-# dev.off()
+cairo_pdf(paste0(fig_dir, "party_effects_interactions.pdf"),
+          width = 8, height = 7)
+{
+  plot_regression_results(iota_loc, iota_var, ideal_loc, save="pdf")
+}
+dev.off()
+
+png(paste0(fig_dir, "party_effects_interactions.png"),
+    width = 800, height = 700)
+{
+  plot_regression_results(iota_loc, iota_var, ideal_loc, save="png")
+}
+dev.off()
+
+cairo_pdf(paste0(fig_dir, "party_effects_interactions_transposed.pdf"),
+          width = 11, height = 5)
+{
+  plot_regression_results_transposed(iota_loc, iota_var, ideal_loc, save="pdf")
+}
+dev.off()
 
 
 
@@ -509,10 +512,14 @@ fig_dir <- paste0(data_dir, "figs/")
 ideal_dim <- "ak"
 covariates <- "all"
 addendum <- 114
+joint_varfam <- TRUE
 K <- 25
 name <- paste0("STBS_ideal_",ideal_dim,"_",covariates,addendum,"_K",K)
 param_dir <- paste0(save_dir, name, "/params/")
 fig_dir <- paste0(fig_dir, name, "/")
+if(!dir.exists(fig_dir)){
+  dir.create(fig_dir)
+}
 
 # Loading the data
 iota_loc <- as.matrix(read_csv(paste0(param_dir, "iota_loc.csv")))
