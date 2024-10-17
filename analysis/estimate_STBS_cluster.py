@@ -415,12 +415,12 @@ def main(argv):
         if FLAGS.computeIC_every > 0:
             if epoch % FLAGS.computeIC_every == 0:
                 ELBOstart = time.time()
-                ## Using decorated @tf.function (for some reason requires too much memory)
-                ELBO, log_prior, entropy, reconstruction, reconstruction_at_Eqmean, effective_number_of_parameters, VAIC, VBIC, seed = get_variational_information_criteria(
-                    model, dataset, seed=seed, nsamples=FLAGS.num_samplesIC)
-                ## Using a method of TBIP model
-                # ELBO, log_prior, entropy, reconstruction, reconstruction_at_Eqmean, effective_number_of_parameters, VAIC, VBIC, seed = model.get_variational_information_criteria(
-                #     dataset, seed=seed, nsamples=FLAGS.num_samplesIC)
+                ## Using decorated @tf.function (for some reason requires too much memory or keeps running forever)
+                # ELBO, log_prior, entropy, reconstruction, reconstruction_at_Eqmean, effective_number_of_parameters, VAIC, VBIC, seed = get_variational_information_criteria(
+                #     model, dataset, seed=seed, nsamples=FLAGS.num_samplesIC)
+                ## Using a method of STBS model
+                ELBO, log_prior, entropy, reconstruction, reconstruction_at_Eqmean, effective_number_of_parameters, VAIC, VBIC, seed = model.get_variational_information_criteria(
+                    dataset, seed=seed, nsamples=FLAGS.num_samplesIC)
                 ELBOtime = time.time() - ELBOstart
                 epoch_line = {'ELBO': [ELBO.numpy()], 'entropy': [entropy.numpy()],
                               'log_prior': [log_prior.numpy()], 'reconstruction': [reconstruction.numpy()],

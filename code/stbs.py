@@ -1666,8 +1666,6 @@ class STBS(tf.keras.Model):
         self.cavi_update_beta_parameters(expected_ideological_term,
                                          beta_shape_shift, theta_Eqmean, exp_verbosity_Eqmean)
         self.print_non_finite_parameters("After updating beta parameters for step " + str(step))
-        print(self.beta_varfam.rate[2, 3150:3155])
-        print(self.beta_varfam.rate[8, 5522:5524])
 
         beta_Eqmean = self.beta_varfam.shape / self.beta_varfam.rate
         if self.beta_rate_varfam.family != 'deterministic':
@@ -1878,20 +1876,11 @@ class STBS(tf.keras.Model):
 
         for step, batch in enumerate(iter(dataset)):
             inputs, outputs = batch
-            empty_samples = self.get_empty_samples()
-            samples, seed = self.get_samples_and_update_prior_customized(empty_samples, seed=seed, varfam=True,
-                                                                         nsamples=nsamples)
-            log_prior_batch = self.get_log_prior(samples)
-            entropy_batch = self.get_entropy(samples, exact=self.exact_entropy)
-            rate_batch = self.get_rates(samples, inputs['document_indices'], inputs['author_indices'])
-            # Create the Poisson distribution with given rates
-            count_distribution = tfp.distributions.Poisson(rate=rate_batch)
-            # reconstruction = log-likelihood of the word counts
-            reconstruction_batch = count_distribution.log_prob(tf.sparse.to_dense(outputs))
+            reconstruction_batch, log_prior_batch, entropy_batch, seed = self(inputs, outputs, seed, nsamples)
+            entropy.append(-entropy_batch)
+            log_prior.append(-log_prior_batch)
+            reconstruction.append(-reconstruction_batch)
 
-            entropy.append(tf.reduce_mean(entropy_batch).numpy())
-            log_prior.append(tf.reduce_mean(log_prior_batch).numpy())
-            reconstruction.append(tf.reduce_mean(tf.reduce_sum(reconstruction_batch, axis=[1, 2])).numpy())
             reconstruction_at_Eqmean.append(self.get_reconstruction_at_Eqmean(inputs, outputs, Eqmeans))
 
         # Entropy and log_prior is computed several times, but it is practically the same, just different samples.

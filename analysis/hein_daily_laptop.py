@@ -24,6 +24,7 @@ from plotting_functions import create_all_general_descriptive_figures, create_al
 from input_pipeline import build_input_pipeline
 from stbs import STBS
 from create_X import create_X
+from information_criteria import get_variational_information_criteria
 
 
 prior_hyperparameter = {
@@ -44,43 +45,43 @@ prior_hyperparameter = {
 }
 #
 # ### Classical TBIP setting
-# prior_choice = {
-#     "theta": "Gfix",        # Gfix=Gamma fixed, Gdrte=Gamma d-rates, Garte=Gamma a-rates
-#     "exp_verbosity": "LNfix",# None=deterministic 1, LNfix=LogN(0,1), Gfix=Gamma fixed
-#     "beta": "Gfix",         # Gfix=Gamma fixed, Gvrte=Gamma v-rates
-#     "eta": "Nfix",          # Nfix=N(0,1),
-#                             # NkprecG=N(0,1/eta_prec_k) and eta_prec_k=Gfix,
-#                             # NkprecF=N(0,1/eta_prec_k) and eta_prec_k=G(.,eta_prec_rate_k)
-#     "ideal_dim": "a",       # "ak" - author and topic-specific ideological positions, "a" just author-specific locations
-#     "ideal_mean": "Nfix",   # Nfix=N(0,.), Nreg=author-level regression N(x^T * iota, .)
-#     "ideal_prec": "Nfix",   # Nfix=N(.,1), Nprec=N(.,1/ideal_prec), Naprec=N(., 1/ideal_prec_{author})
-#     "iota_dim": "l",        # "lk" - coefficient and topic-specific ideological positions (cannot when ideal_dim="a"), "l" just coefficient-specific locations
-#     "iota_prec": "None",    # Nfix=N(.,1),
-#                             # NlprecG=N(.,1/iota_prec_l) and iota_prec_l=Gfix,,
-#                             # NlprecF=N(.,1/iota_prec_l) and iota_prec_l=G(.,iota_prec_rate_l),
-#                             # None=iotas do not exist in the model (if ideal_mean=="Nfix")
-#     "iota_mean": "None",    # None=iotas are centred to a fixed value, Nlmean=each regressor has its own mean across all topics
-# }
-
-### Another setting
 prior_choice = {
-    "theta": "Garte",       # Gfix=Gamma fixed, Gdrte=Gamma d-rates, Garte=Gamma a-rates
-    "exp_verbosity": "None",# None=deterministic 1, LNfix=LogN(0,1), Gfix=Gamma fixed
-    "beta": "Gvrte",        # Gfix=Gamma fixed, Gvrte=Gamma v-rates
-    "eta": "NkprecF",       # Nfix=N(0,1),
+    "theta": "Gfix",        # Gfix=Gamma fixed, Gdrte=Gamma d-rates, Garte=Gamma a-rates
+    "exp_verbosity": "LNfix",# None=deterministic 1, LNfix=LogN(0,1), Gfix=Gamma fixed
+    "beta": "Gfix",         # Gfix=Gamma fixed, Gvrte=Gamma v-rates
+    "eta": "Nfix",          # Nfix=N(0,1),
                             # NkprecG=N(0,1/eta_prec_k) and eta_prec_k=Gfix,
                             # NkprecF=N(0,1/eta_prec_k) and eta_prec_k=G(.,eta_prec_rate_k)
-    "ideal_dim": "ak",      # "ak" - author and topic-specific ideological positions, "a" just author-specific locations
-    "ideal_mean": "Nreg",   # Nfix=N(0,.), Nreg=author-level regression N(x^T * iota, .)
-    "ideal_prec": "Naprec", # Nfix=N(.,1), Nprec=N(.,1/ideal_prec), Naprec=N(., 1/ideal_prec_{author})
-    # "iota_dim": "lk",       # "lk" - coefficient and topic-specific ideological positions (cannot when ideal_dim="a"), "l" just coefficient-specific locations
-    "iota_dim": "kl",       # "kl" - coefficient and topic-specific ideological positions (cannot when ideal_dim="a"), "l" just coefficient-specific locations
-    "iota_prec": "NlprecF", # Nfix=N(.,1),
+    "ideal_dim": "a",       # "ak" - author and topic-specific ideological positions, "a" just author-specific locations
+    "ideal_mean": "Nfix",   # Nfix=N(0,.), Nreg=author-level regression N(x^T * iota, .)
+    "ideal_prec": "Nfix",   # Nfix=N(.,1), Nprec=N(.,1/ideal_prec), Naprec=N(., 1/ideal_prec_{author})
+    "iota_dim": "l",        # "lk" - coefficient and topic-specific ideological positions (cannot when ideal_dim="a"), "l" just coefficient-specific locations
+    "iota_prec": "Nfix",    # Nfix=N(.,1),
                             # NlprecG=N(.,1/iota_prec_l) and iota_prec_l=Gfix,,
                             # NlprecF=N(.,1/iota_prec_l) and iota_prec_l=G(.,iota_prec_rate_l),
                             # None=iotas do not exist in the model (if ideal_mean=="Nfix")
-    "iota_mean": "Nlmean",  # None=iotas are centred to a fixed value, Nlmean=each regressor has its own mean across all topics
+    "iota_mean": "None",    # None=iotas are centred to a fixed value, Nlmean=each regressor has its own mean across all topics
 }
+
+### Another setting
+# prior_choice = {
+#     "theta": "Garte",       # Gfix=Gamma fixed, Gdrte=Gamma d-rates, Garte=Gamma a-rates
+#     "exp_verbosity": "None",# None=deterministic 1, LNfix=LogN(0,1), Gfix=Gamma fixed
+#     "beta": "Gvrte",        # Gfix=Gamma fixed, Gvrte=Gamma v-rates
+#     "eta": "NkprecF",       # Nfix=N(0,1),
+#                             # NkprecG=N(0,1/eta_prec_k) and eta_prec_k=Gfix,
+#                             # NkprecF=N(0,1/eta_prec_k) and eta_prec_k=G(.,eta_prec_rate_k)
+#     "ideal_dim": "ak",      # "ak" - author and topic-specific ideological positions, "a" just author-specific locations
+#     "ideal_mean": "Nreg",   # Nfix=N(0,.), Nreg=author-level regression N(x^T * iota, .)
+#     "ideal_prec": "Naprec", # Nfix=N(.,1), Nprec=N(.,1/ideal_prec), Naprec=N(., 1/ideal_prec_{author})
+#     # "iota_dim": "lk",       # "lk" - coefficient and topic-specific ideological positions (cannot when ideal_dim="a"), "l" just coefficient-specific locations
+#     "iota_dim": "kl",       # "kl" - coefficient and topic-specific ideological positions (cannot when ideal_dim="a"), "l" just coefficient-specific locations
+#     "iota_prec": "NlprecF", # Nfix=N(.,1),
+#                             # NlprecG=N(.,1/iota_prec_l) and iota_prec_l=Gfix,,
+#                             # NlprecF=N(.,1/iota_prec_l) and iota_prec_l=G(.,iota_prec_rate_l),
+#                             # None=iotas do not exist in the model (if ideal_mean=="Nfix")
+#     "iota_mean": "Nlmean",  # None=iotas are centred to a fixed value, Nlmean=each regressor has its own mean across all topics
+# }
 
 # Initial random seed for parameter initialization.
 seed = 314159
@@ -93,6 +94,7 @@ counts_transformation = "nothing"
 learning_rate = 0.01
 num_topics = 25
 num_samples = 1
+num_samplesIC = 1
 RobMon_exponent = -0.7
 exact_entropy = True
 geom_approx = False
@@ -237,7 +239,10 @@ for epoch in range(start_epoch + 1, num_epochs):
     #                                  sec_per_step,
     #                                  sec_per_epoch))
     ELBOstart = time.time()
-    ELBO_MC, log_prior_MC, entropy_MC, reconstruction_MC, reconstruction_at_Eqmean, effective_number_of_parameters, VAIC, VBIC, seed = model.get_variational_information_criteria(dataset, seed=seed, nsamples=num_samples)
+    ELBO_MC, log_prior_MC, entropy_MC, reconstruction_MC, reconstruction_at_Eqmean, effective_number_of_parameters, \
+    VAIC, VBIC, seed = model.get_variational_information_criteria(dataset, seed=seed, nsamples=num_samples)
+    # ELBO_MC, log_prior_MC, entropy_MC, reconstruction_MC, reconstruction_at_Eqmean, effective_number_of_parameters, VAIC, VBIC, seed = get_variational_information_criteria(
+    #     model, dataset, seed=seed, nsamples=num_samplesIC)
     ELBOtime = time.time() - ELBOstart
 
     epoch_data['ELBO_MC'].append(ELBO_MC.numpy())
