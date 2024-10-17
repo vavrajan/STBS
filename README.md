@@ -145,7 +145,8 @@ The choices and their meanings are all enumerated in details in [estimate_STBS_c
 Note that some choices are mutually exclusive. 
 [check_prior](code/check_prior.py) warns you about such inappropriate choices. 
 
-Let's explain it on several examples. First, these settings give you the original TBIP:
+Let's explain it on several examples. First, these settings give you the latest implementation 
+of the original TBIP by Keyon Vafa (with Gamma variational families):
 ```{python, eval=False}
 prior_choice = {
         "theta": "Gfix",          # Gamma with fixed 'theta_shp' and 'theta_rte' 
@@ -160,6 +161,9 @@ prior_choice = {
         "iota_prec": "Nfix",      # ... irrelevant
     }
 ```
+To really fit it the same way, do not forget to set
+`exact_entropy = False` and `geom_approx = True`.
+
 
 Now STBS model with regression but still fixed ideological positions across all topics:
 ```{python, eval=False}
