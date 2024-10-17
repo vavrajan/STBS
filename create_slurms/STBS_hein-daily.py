@@ -28,6 +28,7 @@ partition = 'gpu'
 # Different number of topics
 Ks = [25]
 num_epochs = 150
+computeIC_every = 0
 
 ## Different model settings
 scenarios = {}
@@ -39,7 +40,7 @@ for i in addenda:
         scenarios[name] = {"checkpoint_name": name,
                            "addendum": addendum,
                            "num_topics": K,
-                           "computeIC_every": 5,
+                           "computeIC_every": computeIC_every,
                            "pre_initialize_parameters": True,
                            "exact_entropy": False, "geom_approx": True,
                            "iota_coef_jointly": False, # irrelevant
@@ -57,7 +58,7 @@ for i in addenda:
             scenarios[name] = {"checkpoint_name": name,
                                "addendum": addendum,
                                "num_topics": K,
-                               "computeIC_every": 5,
+                               "computeIC_every": computeIC_every,
                                "pre_initialize_parameters": True,
                                "exact_entropy": True, "geom_approx": False,
                                "iota_coef_jointly": True,
@@ -75,7 +76,7 @@ for i in addenda:
             scenarios[name] = {"checkpoint_name": name,
                                "addendum": addendum,
                                "num_topics": K,
-                               "computeIC_every": 5,
+                               "computeIC_every": computeIC_every,
                                "pre_initialize_parameters": True,
                                "exact_entropy": True, "geom_approx": False,
                                "iota_coef_jointly": True,

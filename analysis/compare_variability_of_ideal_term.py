@@ -5,7 +5,9 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import matplotlib.pyplot as plt
 import seaborn as sns
-from code.plotting_functions import plot_labels
+import sys
+sys.path.append(os.path.join(os.getcwd(), 'code'))
+from plotting_functions import plot_labels
 
 ### Setting up directories
 data_name = 'hein-daily'
@@ -16,8 +18,8 @@ covariates = 'all'
 project_dir = os.getcwd()
 source_dir = os.path.join(project_dir, 'data', data_name)
 data_dir = os.path.join(source_dir, 'clean')
-ak_dir = os.path.join(source_dir, 'fits', 'STBS_ideal_ak_' + covariates + '_K'+str(num_topics), 'params')
-a_dir = os.path.join(source_dir, 'fits', 'STBS_ideal_a_' + covariates + '_K'+str(num_topics), 'params')
+ak_dir = os.path.join(source_dir, 'fits', 'STBS_ideal_ak_' + covariates + addendum + '_K'+str(num_topics), 'params')
+a_dir = os.path.join(source_dir, 'fits', 'STBS_ideal_a_' + covariates + addendum + '_K'+str(num_topics), 'params')
 fig_dir = os.path.join(source_dir, 'figs')
 
 ### Load rho variances

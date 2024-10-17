@@ -1,6 +1,6 @@
 # Structural Text-Based Scaling Model
 Source code for the paper: 
-[Structural Text-Based Scaling Model by Jan Vávra, Bernd Prostmeier, Bettina Grün, and Paul Hofmarcher (2024)](web to the paper or arXiv).
+[Structural Text-Based Scaling Model by Jan Vávra, Bernd Prostmeier, Bettina Grün, and Paul Hofmarcher (2024)](http://arxiv.org/abs/2410.11897).
 
 ## Directories and main files overview:
 

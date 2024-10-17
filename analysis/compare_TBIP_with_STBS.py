@@ -5,7 +5,10 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import matplotlib.pyplot as plt
 import seaborn as sns
-from code.plotting_functions import plot_labels
+
+import sys
+sys.path.append(os.path.join(os.getcwd(), 'code'))
+from plotting_functions import plot_labels
 
 ### Setting up directories
 data_name = 'hein-daily'
@@ -14,13 +17,15 @@ num_topics = 25
 STBS = 'STBS_ideal_ak_party'
 # STBS = 'STBS_ideal_ak_all_no_int'
 # STBS = 'STBS_ideal_ak_all'
+party_by_mean = True # if False, then party means are determined based on the estimated regression coefficients
+weighted_mean = True # weights created by averaging thetas
 
 project_dir = os.getcwd()
 source_dir = os.path.join(project_dir, 'data', data_name)
 data_dir = os.path.join(source_dir, 'clean')
 fit_dir = os.path.join(source_dir, 'fits')
 TBIP_dir = os.path.join(fit_dir, 'TBIP_' + addendum + '_K'+str(num_topics), 'params')
-STBS_dir = os.path.join(fit_dir, STBS+'_K'+str(num_topics), 'params')
+STBS_dir = os.path.join(fit_dir, STBS + addendum + '_K'+str(num_topics), 'params')
 fig_dir = os.path.join(source_dir, 'figs')
 
 tab_dir = os.path.join(source_dir, 'tabs')
@@ -42,7 +47,7 @@ iotas = np.load(os.path.join(STBS_dir, "iota_location.npy"))
 STBS_theta_shp = np.load(os.path.join(STBS_dir, "theta_shp.npy"))
 STBS_theta_rte = np.load(os.path.join(STBS_dir, "theta_rte.npy"))
 
-all_author_indices = np.load(os.path.join(STBS_dir + "all_author_indices.npy"))
+all_author_indices = np.load(os.path.join(STBS_dir, "all_author_indices.npy"))
 
 # author_info = pd.read_csv(os.path.join(data_dir, "author_info114.csv"))
 # author_info = pd.read_csv(os.path.join(data_dir, "author_detailed_info114.csv"))
@@ -106,8 +111,6 @@ def plot_heatmap(table, title, fig_path, ind0, ind1):
     plt.close()
 
 ### Plotting ideal points for classical TBIP and then topic-specific ideals
-party_by_mean = False
-weighted_mean = False
 Eqtheta = STBS_theta_shp / STBS_theta_rte
 weights = tf.math.unsorted_segment_mean(Eqtheta, all_author_indices, num_authors)
 weights_row = weights / tf.reduce_sum(weights, axis=0)[tf.newaxis, :]
@@ -148,8 +151,8 @@ for transposed in [True, False]:
             xR = tf.reduce_mean(tf.gather(STBSloc, tf.where(author_info['party'] == 'R'), axis=0), axis=0)[0, :]
             how_party = 'party_by_average'
     else:
-        xD = iotas[0, :]
-        xR = iotas[0, :] + iotas[1, :]
+        xD = iotas[:, 0]
+        xR = iotas[:, 0] + iotas[:, 1]
         how_party = 'party_by_iota'
 
     xD1 = tf.reduce_mean(tf.gather(TBIPloc, tf.where(author_info['party'] == 'D'), axis=0), axis=0)
@@ -275,8 +278,8 @@ if party_by_mean:
     xR = tf.reduce_mean(tf.gather(STBSloc, tf.where(author_info['party'] == 'R'), axis=0), axis=0)[0, :]
     how_party = 'party_by_average'
 else:
-    xD = iotas[0, :]
-    xR = iotas[0, :] + iotas[1, :]
+    xD = iotas[:, 0]
+    xR = iotas[:, 0] + iotas[:, 1]
     how_party = 'party_by_iota'
 permutation = tf.argsort(tf.math.abs(xR - xD), direction='DESCENDING')
 xD = tf.gather(xD, permutation)
@@ -373,8 +376,8 @@ if party_by_mean:
     xR = tf.reduce_mean(tf.gather(STBSloc, tf.where(author_info['party'] == 'R'), axis=0), axis=0)[0, :]
     how_party = 'party_by_average'
 else:
-    xD = iotas[0, :]
-    xR = iotas[0, :] + iotas[1, :]
+    xD = iotas[:, 0]
+    xR = iotas[:, 0] + iotas[:, 1]
     how_party = 'party_by_iota'
 permutation = tf.argsort(tf.math.abs(xR - xD), direction='DESCENDING')
 xD = tf.gather(xD, permutation)

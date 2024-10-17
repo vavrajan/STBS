@@ -4,8 +4,8 @@ library(dplyr)
 ROOT <- paste0(getwd(), "/data/hein-daily/fits/")
 FIG <- paste0(getwd(), "/data/hein-daily/figs/")
 
-eta_fixed <- read.csv(paste0(ROOT, "STBS_ideal_a_all_K25/params/eta_ideal_a_variability.csv"))
-eta_varying <- read.csv(paste0(ROOT, "STBS_ideal_ak_all_K25/params/eta_ideal_ak_variability.csv"))
+eta_fixed <- read.csv(paste0(ROOT, "STBS_ideal_a_all114_K25/params/eta_ideal_a_variability.csv"))
+eta_varying <- read.csv(paste0(ROOT, "STBS_ideal_ak_all114_K25/params/eta_ideal_ak_variability.csv"))
 
 colnames(eta_fixed) <- colnames(eta_varying) <- c("Topic", "Variance")
 
