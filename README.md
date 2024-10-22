@@ -33,8 +33,8 @@ contains the scripts for performing the estimation and post-processing
   [utils](code/utils.py) and 
   [var_and_prior_families](code/var_and_prior_family.py) used for estimation of STBS
   * [plotting_functions](code/plotting_functions.py) contains functions to create descriptive plots using the latest STBS model parameter values 
-    * `create_all_general_descriptive_figures` - for any dataset (histograms, barplots, wordclouds, 
-    * `create_all_figures_specific_to_data` - specific to each dataset
+    * `create_all_general_descriptive_figures` - for any dataset (histograms, barplots, wordclouds, ...)
+    * `create_all_figures_specific_to_data` - specific to each dataset (Republicans vs Democrats, ...)
 * [create_slurms](create_slurms) - `.py` files to create `.slurm` files for submitting jobs on computational cluster,
 these files are specific to the computing environment used and are included for documentation (and inspiration) purposes 
 * [data](data) - contains data in separate folders
@@ -212,9 +212,10 @@ create convex-combinations of old and a new value.
 * `exact_entropy`: Should the exact entropy be computed (True) 
 or approximated with Monte Carlo (False)?
 * `geom_approx`: Should the expected ideological term Edkv be approximated by the geometric mean (True) 
-or should it be computed exactly?
+or should it be computed exactly (False)?
 * `aux_prob_sparse`: Should the counts and auxiliary proportions be worked with 
-as with sparse matrices (True/False)? (From experience, strangely, sparse format does not lead to faster computation.)
+as with sparse matrices (True/False)? 
+* (From experience, strangely, sparse format does not lead to faster computation with Tensorflow.)
 * `iota_coef_jointly`: Should the variational family over iota coefficients be joint (with general covariance matrix) (True) 
 instead of mean-field variational family which imposes independence between coefficients (False)?
 

@@ -27,8 +27,8 @@ partition = 'gpu'
 
 # Different number of topics
 Ks = [25]
-num_epochs = 150
-computeIC_every = 0
+num_epochs = 221
+computeIC_every = 20
 
 ## Different model settings
 scenarios = {}
@@ -108,7 +108,7 @@ with open(os.path.join(slurm_dir, 'run_all_STBS.slurm'), 'w') as all_file:
             # file.write('#SBATCH --ntasks=2 # total number of tasks across all nodes\n')
             # file.write('#SBATCH --cpus-per-task=1 # cpu-cores per task (>1 if multi-threaded tasks)\n')
             # file.write('#SBATCH --mem=1G # total memory per node\n')
-            file.write('#SBATCH --mem-per-cpu=256000 # in megabytes, default is 4GB per task\n')
+            file.write('#SBATCH --mem-per-cpu=400000 # in megabytes, default is 4GB per task\n')
             # file.write('#SBATCH --mail-user=jan.vavra@wu.ac.at\n')
             # file.write('#SBATCH --mail-type=ALL\n')
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=STBS_hein-daily # short name for your job
 #SBATCH --partition=gpu
-#SBATCH --mem-per-cpu=256000 # in megabytes, default is 4GB per task
+#SBATCH --mem-per-cpu=400000 # in megabytes, default is 4GB per task
 #SBATCH -o /home/jvavra/STBS/out/hein-daily/%x_%j_%N.out      # save stdout to file. The filename is defined through filename pattern
 #SBATCH -e /home/jvavra/STBS/err/hein-daily/%x_%j_%N.err      # save stderr to file. The filename is defined through filename pattern
 #SBATCH --time=11:59:59 # total run time limit (HH:MM:SS)
@@ -13,4 +13,4 @@ ml miniconda3-4.10.3-gcc-12.2.0-ibprkvn
 cd /home/jvavra/STBS/
 conda activate tf_TBIP
 
-python /home/jvavra/STBS/analysis/estimate_STBS_cluster.py  --num_epochs=1000  --data_name=hein-daily  --checkpoint_name=TBIP_114_K25  --addendum=114  --num_topics=25  --pre_initialize_parameters=True  --exact_entropy=False  --geom_approx=True  --iota_coef_jointly=False  --theta=Gfix  --exp_verbosity=LNfix  --beta=Gfix  --eta=Nfix  --covariates=None  --ideal_dim=a  --ideal_mean=Nfix  --ideal_prec=Nfix  --iota_dim=l  --iota_mean=None  --iota_prec=Nfix
+python /home/jvavra/STBS/analysis/estimate_STBS_cluster.py  --num_epochs=221  --data_name=hein-daily  --checkpoint_name=TBIP_114_K25  --addendum=114  --num_topics=25  --computeIC_every=20  --pre_initialize_parameters=True  --exact_entropy=False  --geom_approx=True  --iota_coef_jointly=False  --theta=Gfix  --exp_verbosity=LNfix  --beta=Gfix  --eta=Nfix  --covariates=None  --ideal_dim=a  --ideal_mean=Nfix  --ideal_prec=Nfix  --iota_dim=l  --iota_mean=None  --iota_prec=Nfix
