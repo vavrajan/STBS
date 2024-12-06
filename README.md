@@ -83,6 +83,8 @@ these files are specific to the computing environment used and are included for 
   create `.tex` files containing the table of regression coefficients
   * [barplot_eta_ideal_variability](R/barplot_eta_ideal_variability.R) - 
   compare the variability of the ideological space between two models via barplot
+  * [ideal_party_R2](R/ideal_party_R2.R) -
+  compute the R^2 measure of explained variability by party for ideal point estimates
 * [slurm](slurm) - directory for `.slurm` files that submit jobs on cluster (very specific to the gpu cluster used for computations, 
 user needs to adjust these), properly structured
 

@@ -127,6 +127,19 @@ plot_heatmap(weights_total, "Total scaled weights", os.path.join(fig_dir, 'weigh
 # print(tf.gather(author_map, ind0, axis=0))
 #plot_heatmap(weights_total, "Weights grouped by party", fig_dir + 'weights_by_party.png', ind0, ind1)
 
+if weighted_mean:
+    meanlocs = tf.reduce_sum(STBSloc * weights_column, axis=1)
+else:
+    meanlocs = tf.reduce_mean(STBSloc, axis=1)
+
+### Create ideal_data to be saved by csv
+ideal_data = pd.DataFrame(STBSloc)
+ideal_data['avg'] = meanlocs
+ideal_data['tbip'] = TBIPloc
+ideal_data['surname'] = author_info['surname']
+ideal_data['party'] = author_info['party']
+ideal_data.to_csv(os.path.join(STBS_dir, 'ideal_data.csv'))
+
 for cat in ['party', 'gender', 'region', 'generation', 'exper_cong', 'RELIGION']:
     ind0 = author_info[cat].argsort()
     plot_heatmap(weights_total, "Weights grouped by "+cat, os.path.join(fig_dir, 'weights_by_'+cat+'.png'), ind0, ind1)
@@ -180,13 +193,11 @@ for transposed in [True, False]:
             plt.scatter(x=TBIPloc[i], y=1.0, color=colorcat[author_info['party'][i]], marker=markercat[author_info['party'][i]])
         plt.hlines(0.5, -1.4, 1.9, colors='grey', linestyles='-')
     if weighted_mean:
-        meanlocs = tf.reduce_sum(STBSloc * weights_column, axis=1)
         if transposed:
             meanlab = 'WA'
         else:
             meanlab = 'WghtAvrg'
     else:
-        meanlocs = tf.reduce_mean(STBSloc, axis=1)
         if transposed:
             meanlab = 'Avg'
         else:
