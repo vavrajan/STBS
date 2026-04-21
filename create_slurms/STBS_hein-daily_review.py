@@ -27,7 +27,7 @@ partition = 'gpu'
 
 # Different number of topics
 Ks = [25]
-num_epochs = 221
+num_epochs = 101
 computeIC_every = 20
 
 ## Different model settings
