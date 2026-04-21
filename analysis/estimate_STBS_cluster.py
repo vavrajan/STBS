@@ -558,7 +558,7 @@ def main(argv):
     create_all_figures_specific_to_data(model, FLAGS.data_name, FLAGS.covariates, fig_dir, all_author_indices,
                                         author_map, author_info, vocabulary,
                                         nwords=10, ntopics=5,
-                                        selected_topics=[5, 9, 11, 13, 16, 24])
+                                        selected_topics=[4, 9, 11, 13, 16, 24])
 
     ### Create LaTeX tables
     # create_latex_tables(model, tab_dir)
