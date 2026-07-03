@@ -87,6 +87,12 @@ these files are specific to the computing environment used and are included for 
   compute the R^2 measure of explained variability by party for ideal point estimates
 * [slurm](slurm) - directory for `.slurm` files that submit jobs on cluster (very specific to the gpu cluster used for computations, 
 user needs to adjust these), properly structured
+* [simulation-robustness](simulation-robustness)  - directory containing a set of python scripts used for additional simulation studies inspired by comments of reviewers. 
+It contains the validation of of constructed model (comparison to DW nominate scores), 
+robustness check with respect to seeds or hyperparameter choices, 
+Monte Carlo simulation to support the ability of STBS to reveal the true covariate effects on ideological positions,
+scalability check with increasing dimensions and much more. 
+The folder contains its own `README` file.
 
 ## Adding a new dataset
 
