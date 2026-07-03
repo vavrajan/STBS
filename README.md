@@ -92,7 +92,8 @@ It contains the validation of of constructed model (comparison to DW nominate sc
 robustness check with respect to seeds or hyperparameter choices, 
 Monte Carlo simulation to support the ability of STBS to reveal the true covariate effects on ideological positions,
 scalability check with increasing dimensions and much more. 
-The folder contains its own `README` file.
+The folder contains its own `README` file. 
+To use these files a directory `STBS_CAVI` containing this version of the model is expected. 
 
 ## Adding a new dataset
 
